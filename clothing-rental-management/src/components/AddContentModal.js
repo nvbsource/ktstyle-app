@@ -243,7 +243,7 @@ const AddPostModal = ({ visible, onCancel, onCreate }) => {
                         onClick={handleCursorChange} // Lưu vị trí con trỏ khi click
                         onKeyUp={handleCursorChange} // Lưu vị trí con trỏ khi gõ phím
                         autoSize={true}
-                        className="border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-md !leading-5 !min-h-[100px] !max-h-[300px] p-5"
+                        className="border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600 text-[20px] !leading-6 !min-h-[100px] !max-h-[300px] p-5"
                         placeholder="Nhập nội dung bài viết"
                       />
                       <SmileOutlined className='absolute right-5 bottom-5 text-[20px]'/>

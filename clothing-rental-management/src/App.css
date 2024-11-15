@@ -14,3 +14,7 @@ button:focus {
 textarea {
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif
 }
+textarea::placeholder{
+  font-family: -apple-system, "system-ui", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 20px;
+}
