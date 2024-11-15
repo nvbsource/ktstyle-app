@@ -10,3 +10,7 @@ button:focus {
   box-shadow: 0 0 8px rgba(0, 123, 255, 0.6) !important;
   outline: none;
 }
+
+textarea, input {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Segoe UI Symbol", sans-serif !important;
+}
