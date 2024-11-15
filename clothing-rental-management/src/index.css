@@ -1,0 +1,87 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset tất cả các phần tử */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Xóa kiểu mặc định của các thẻ HTML */
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background-color: #fff;
+  color: #333;
+}
+
+/* Các thẻ block-level (div, p, h1... h6, section, article, footer, header...) */
+body, figure, main, section, article {
+  display: block;
+}
+
+/* Xóa kiểu mặc định của li */
+ul, ol {
+  list-style: none;
+}
+
+/* Loại bỏ các link gạch dưới */
+a {
+  text-decoration: none;
+  color: inherit; /* Giữ màu sắc link kế thừa từ bố mẹ */
+}
+
+/* Loại bỏ ảnh bị dãn */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block; /* Đảm bảo hình ảnh không có khoảng trống dưới ảnh */
+}
+
+/* Reset cho form input và textarea */
+input, textarea, select, button {
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+}
+
+/* Xóa khoảng cách của bảng */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Sửa các kiểu mặc định của form */
+button {
+  background-color: transparent;
+  cursor: pointer;
+}
+
+/* Xóa định dạng mặc định của các thẻ thuộc loại inline */
+strong, b {
+  font-weight: bold;
+}
+
+em, i {
+  font-style: italic;
+}
+
+/* Xóa kiểu mặc định cho các thẻ code */
+code {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+

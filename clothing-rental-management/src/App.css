@@ -1,0 +1,12 @@
+.tox .tox-edit-area::before{
+  outline: none !important; 
+  border: none !important; 
+}
+
+input:focus,
+textarea:focus,
+button:focus {
+  border: 1px solid #007bff !important; /* Đổi màu border khi focus */
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.6) !important;
+  outline: none;
+}
