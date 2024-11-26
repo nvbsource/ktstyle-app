@@ -3,7 +3,8 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '02052019Bao@',
-  database: 'quan_ly_quan_ao'
+  database: 'quan_ly_quan_ao',
+  charset: 'utf8mb4_general_ci'
 });
 
 db.connect((err) => {

@@ -4,7 +4,7 @@ const router = express.Router();
 const categoryController = require('../controllers/categoryController');
 
 // Lấy tất cả danh mục
-router.get('/', categoryController.getCategories);
+router.get('/', categoryController.getCategoriesWithParentChild);
 
 // Thêm danh mục mới
 router.post('/', categoryController.addCategory);

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const productContentsController = require('../controllers/productContentController');
+const productContentsController = require('../controllers/contentController');
+
+router.get('/', productContentsController.getContents);
 
 // Tạo bài viết mới
 router.post('/', productContentsController.createProductContent);

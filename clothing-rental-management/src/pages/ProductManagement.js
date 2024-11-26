@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, message, Tag, Card, Row, Col, Input, Select, Switch, Space, DatePicker, Slider } from 'antd';
 import ProductForm from '../components/ProductForm';
-import { fetchProducts, addProduct, deleteProduct, updateProduct, fetchCategories } from '../services/api';
+import { fetchProducts, addProduct, deleteProduct, updateProduct, fetchCategories, updateVariant, addVariant } from '../services/api';
 import { formatNumberToCurrency } from '../helpers/helpers';
 import ProductCard from '../components/ProductCard';
 import { AppstoreOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FrownOutlined } from '@ant-design/icons';
@@ -62,6 +62,22 @@ const ProductManagement = () => {
     setIsModalVisible(false); // Đóng modal sau khi thêm/sửa
   };
 
+  // Thêm sản phẩm mới
+  const handleFormVariantSubmit = async (variant, editVariantId) => {
+    console.log(editVariantId);
+    
+    if (editingProduct) {
+      if (editVariantId) {
+        const data = await updateVariant(editVariantId, variant);
+        message.success(data.message);
+      } else {
+        const data = await addVariant({ product_id: editingProduct.id, ...variant });
+        message.success(data.message);
+      }
+    }
+    loadProducts(); // Tải lại danh sách sản phẩm sau khi thêm/sửa
+  };
+
   // Xóa sản phẩm
   const handleDelete = async (id) => {
     try {
@@ -74,7 +90,7 @@ const ProductManagement = () => {
   };
 
   // Mảng màu sắc
-  const categoryColors = [
+  const libraryColors = [
     "magenta", "red", "volcano", "orange", "gold", "lime", "green",
     "cyan", "blue", "geekblue", "purple"
   ];
@@ -89,10 +105,10 @@ const ProductManagement = () => {
     },
     { title: 'Giá thuê', dataIndex: 'rental_price', key: 'rental_price', render: (text) => `${formatNumberToCurrency(text)} VND` },
     {
-      title: 'Danh mục', key: 'categories', render: (_, record) => (
-        record.categories && record.categories.map((category) => (
-          <Tag color={categoryColors[Math.floor(Math.random() * categoryColors.length)]} key={category.id}>
-            {category.name}
+      title: 'Thư viện', key: 'libraries', render: (_, record) => (
+        record.libraries && record.libraries.map((library) => (
+          <Tag color={libraryColors[Math.floor(Math.random() * libraryColors.length)]} key={library.id}>
+            {library.name}
           </Tag>
         ))
       )
@@ -166,7 +182,7 @@ const ProductManagement = () => {
         footer={null}
         width={1200}
       >
-        <ProductForm onSubmit={handleFormSubmit} initialData={editingProduct} />
+        <ProductForm onSubmit={handleFormSubmit} onSubmitVariant={handleFormVariantSubmit} initialData={editingProduct} />
       </Modal>
 
       {/* Modal chi tiết sản phẩm */}
@@ -236,9 +252,9 @@ const ProductManagement = () => {
 
             {/* Danh mục sản phẩm */}
             <div className="product-categories flex flex-wrap gap-2 mt-2">
-              {selectedProduct.categories && selectedProduct.categories.map((category) => (
-                <Tag key={category.id} color="blue" className="text-lg">
-                  {category.name}
+              {selectedProduct.libraries && selectedProduct.libraries.map((library) => (
+                <Tag key={library.id} color="blue" className="text-lg">
+                  {library.name}
                 </Tag>
               ))}
             </div>

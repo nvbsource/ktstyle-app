@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Slider, Select, Button, Switch, DatePicker, message } from 'antd';
-import { fetchCategories, fetchProducts } from '../services/api'; // Giả sử fetchProducts là API gọi sản phẩm
+import { fetchProducts } from '../services/api'; // Giả sử fetchProducts là API gọi sản phẩm
 import { formatNumberToCurrency } from '../helpers/helpers';
+import { fetchCategories } from '../services/categoryApi';
+import { fetchLibraries } from '../services/libraryApi';
 const { RangePicker } = DatePicker;
 
 
@@ -9,29 +11,31 @@ const ProductFilter = ({ setLoading, setProducts, setIsCardView, isCardView }) =
     const [filters, setFilters] = useState({
         name: '',
         category: null,
+        library: null,
         price: null,
         date: [],
     });
 
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
     const [categories, setCategories] = useState([]);
+    const [libraries, setLibraries] = useState([]);
 
     const [debounceTimeout, setDebounceTimeout] = useState(null);
 
     useEffect(() => {
         // Hủy bỏ timeout cũ nếu có
         if (debounceTimeout) {
-          clearTimeout(debounceTimeout);
+            clearTimeout(debounceTimeout);
         }
-    
+
         // Tạo timeout mới
         const timeout = setTimeout(() => {
-          setDebouncedFilters(filters);
+            setDebouncedFilters(filters);
         }, 300); // Delay 300ms sau khi user ngừng thay đổi filter
-    
+
         // Lưu timeout id để có thể hủy bỏ sau
         setDebounceTimeout(timeout);
-      }, [filters]);
+    }, [filters]);
 
     // Effect to call loadProducts when filters change
     useEffect(() => {
@@ -47,7 +51,16 @@ const ProductFilter = ({ setLoading, setProducts, setIsCardView, isCardView }) =
                 message.error('Lỗi khi tải danh mục');
             }
         };
+        const loadLibraries = async () => {
+            try {
+                const response = await fetchLibraries();
+                setLibraries(response.data);
+            } catch (error) {
+                message.error('Lỗi khi tải danh mục');
+            }
+        };
         loadCategories();
+        loadLibraries();
     }, []);
 
     // Hàm xử lý thay đổi của tên
@@ -64,6 +77,14 @@ const ProductFilter = ({ setLoading, setProducts, setIsCardView, isCardView }) =
         setFilters((prevFilters) => ({
             ...prevFilters,
             category: value,
+        }));
+    };
+
+    // Hàm xử lý thay đổi của category
+    const handleLibraryFilterChange = (value) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            library: value,
         }));
     };
 
@@ -127,6 +148,23 @@ const ProductFilter = ({ setLoading, setProducts, setIsCardView, isCardView }) =
                         ]}
                     />
                 </div>
+                {/* Category Filter */}
+                <div className="flex flex-col w-full sm:w-48">
+                    <label className="mb-2 text-sm font-medium text-gray-700">Chọn thư viện</label>
+                    <Select
+                        placeholder="Chọn thư viện"
+                        value={filters.library}
+                        onChange={handleLibraryFilterChange}
+                        className="w-full"
+                        options={[
+                            { value: null, label: "Tất cả thư viện" }, // Option for "All Libraries"
+                            ...libraries.map((library) => ({
+                                value: library.id,
+                                label: library.name,
+                            })),
+                        ]}
+                    />
+                </div>
 
                 {/* Date Filter */}
                 <div className="flex flex-col w-full sm:w-72">
@@ -170,7 +208,7 @@ const ProductFilter = ({ setLoading, setProducts, setIsCardView, isCardView }) =
                 />
                 <span className="text-sm">Xem dưới dạng Card</span>
             </div>}
-            
+
         </div>
     );
 };

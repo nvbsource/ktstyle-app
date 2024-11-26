@@ -40,7 +40,7 @@ function ProductCard({ product, setSelectedProduct, selectedProduct }) {
             </div>
 
             <div className="flex flex-wrap gap-2 mt-2">
-                {product.categories && product.categories.map((category) => (
+                {product.libraries && product.libraries.map((category) => (
                     <Tag key={category.id} color="blue" className="text-xs">
                         {category.name}
                     </Tag>

@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, message } from 'antd';
-import CategoryForm from '../components/CategoryForm';
-import { fetchCategories, addCategory, updateCategory, deleteCategory } from '../services/api';
+import LibraryForm from '../components/LibraryForm';
+import { fetchLibraries, addLibrary, updateLibrary, deleteLibrary } from '../services/libraryApi';
 import { AppstoreOutlined } from '@ant-design/icons';
 
 const LibraryManagement = () => {
-    const [categories, setCategories] = useState([]);
+    const [libraries, setLibraries] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingCategory, setEditingCategory] = useState(null);
+    const [editingLibrary, setEditingLibrary] = useState(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        loadCategories();
+        loadLibraries();
     }, []);
 
-    // Hàm lấy danh sách thư viện hoặc danh mục
-    const loadCategories = async () => {
+    // Hàm lấy danh sách thư viện hoặc thư viện
+    const loadLibraries = async () => {
         setLoading(true);
         try {
-            const response = await fetchCategories();
+            const response = await fetchLibraries();
             const data = response.data;
-            setCategories(data);
+            setLibraries(data);
         } catch (error) {
             message.error("Lỗi khi tải danh sách thư viện");
         }
@@ -28,48 +28,48 @@ const LibraryManagement = () => {
     };
 
     // Hiển thị modal để thêm thư viện mới
-    const handleAddCategory = () => {
-        setEditingCategory(null);
+    const handleAddLibrary = () => {
+        setEditingLibrary(null);
         setIsModalVisible(true);
     };
 
-    // Hiển thị modal để sửa danh mục hiện tại
-    const handleEditCategory = (category) => {
-        setEditingCategory(category);
+    // Hiển thị modal để sửa thư viện hiện tại
+    const handleEditLibrary = (library) => {
+        setEditingLibrary(library);
         setIsModalVisible(true);
     };
 
     // Đóng modal
     const handleCancel = () => {
         setIsModalVisible(false);
-        setEditingCategory(null);
+        setEditingLibrary(null);
     };
 
-    // Thêm hoặc cập nhật danh mục
-    const handleFormSubmit = async (category) => {
+    // Thêm hoặc cập nhật thư viện
+    const handleFormSubmit = async (library) => {
         try {
-            if (editingCategory) {
-                // Cập nhật danh mục hiện tại
-                const data = await updateCategory(editingCategory.id, category);
+            if (editingLibrary) {
+                // Cập nhật thư viện hiện tại
+                const data = await updateLibrary(editingLibrary.id, library);
                 message.success(data.message);
             } else {
-                // Thêm danh mục mới
-                const data = await addCategory(category);
+                // Thêm thư viện mới
+                const data = await addLibrary(library);
                 message.success(data.message);
             }
-            loadCategories(); // Tải lại danh sách danh mục sau khi thêm hoặc cập nhật
+            loadLibraries(); // Tải lại danh sách thư viện sau khi thêm hoặc cập nhật
         } catch (error) {
             message.error(error.response?.data?.message);
         }
         setIsModalVisible(false);
     };
 
-    // Xóa danh mục
-    const handleDeleteCategory = async (id) => {
+    // Xóa thư viện
+    const handleDeleteLibrary = async (id) => {
         try {
-            const data = await deleteCategory(id);
+            const data = await deleteLibrary(id);
             message.success(data.message);
-            loadCategories(); // Tải lại danh sách sau khi xóa
+            loadLibraries(); // Tải lại danh sách sau khi xóa
         } catch (error) {
             message.error(error.response?.data?.message);
         }
@@ -87,10 +87,10 @@ const LibraryManagement = () => {
             key: 'action',
             render: (_, record) => (
                 <>
-                    <Button onClick={() => handleEditCategory(record)} style={{ marginRight: 8 }}>
+                    <Button onClick={() => handleEditLibrary(record)} style={{ marginRight: 8 }}>
                         Sửa
                     </Button>
-                    <Button onClick={() => handleDeleteCategory(record.id)} danger>
+                    <Button onClick={() => handleDeleteLibrary(record.id)} danger>
                         Xóa
                     </Button>
                 </>
@@ -104,26 +104,26 @@ const LibraryManagement = () => {
                 <div className="flex items-center gap-2">
                     <AppstoreOutlined className="text-3xl" />
                     <h2 className="text-2xl font-semibold">
-                        Quản lý danh mục
+                        Quản lý thư viện
                     </h2>
                 </div>
-                <Button type="primary" onClick={handleAddCategory} style={{ marginBottom: 16 }}>
-                    Thêm danh mục
+                <Button type="primary" onClick={handleAddLibrary} style={{ marginBottom: 16 }}>
+                    Thêm thư viện
                 </Button>
             </div>
             <Table
-                dataSource={categories}
+                dataSource={libraries}
                 columns={columns}
                 rowKey="id"
                 loading={loading}
             />
             <Modal
-                title={editingCategory ? "Sửa Thư viện" : "Thêm Thư viện"}
+                title={editingLibrary ? "Sửa Thư viện" : "Thêm Thư viện"}
                 visible={isModalVisible}
                 onCancel={handleCancel}
                 footer={null}
             >
-                <CategoryForm onSubmit={handleFormSubmit} initialData={editingCategory} />
+                <LibraryForm onSubmit={handleFormSubmit} initialData={editingLibrary} />
             </Modal>
         </div>
     );

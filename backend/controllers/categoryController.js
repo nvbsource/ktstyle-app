@@ -1,70 +1,105 @@
-const db = require('../config/db');
+const dbRepository = require('../config/dbRepository');
 const { successResponse, errorResponse } = require('../helpers/responseHelper');
 
-// Lấy tất cả danh mục
-exports.getCategories = (req, res) => {
-    db.query('SELECT * FROM categories', (err, results) => {
-        if (err) {
-            console.error("Lỗi khi lấy danh mục:", err);
-            return errorResponse(res, "Lỗi khi lấy danh mục");
-        }
-        successResponse(res, "Danh mục đã được lấy thành công", results);
-    });
+// Lấy tất cả danh mục với cha-con
+exports.getCategoriesWithParentChild = async (req, res) => {
+    try {
+        const categories = await dbRepository.getAll("Categories");
+
+        // Hàm đệ quy để xây dựng cây danh mục
+        const buildCategoryTree = (categories, parentId = null) => {
+            return categories
+                .filter((category) => category.parent_id === parentId) // Lọc các danh mục con của parentId
+                .map((category) => ({
+                    ...category,
+                    children: buildCategoryTree(categories, category.id), // Đệ quy tìm các con
+                }));
+        };
+
+        // Xây dựng cây danh mục từ root (parent_id === null)
+        const categoryTree = buildCategoryTree(categories.data);
+
+        // Trả về danh mục cha và cây đầy đủ
+        successResponse(res, "Danh mục cha và con đã được lấy thành công", categoryTree);
+    } catch (err) {
+        console.error("Lỗi khi lấy danh mục:", err);
+        errorResponse(res, "Lỗi khi lấy danh mục");
+    }
 };
 
 // Thêm danh mục mới
-exports.addCategory = (req, res) => {
-    const { name } = req.body;
-    db.query('INSERT INTO categories SET ?', { name }, (err) => {
-        if (err) {
-            console.error("Lỗi khi thêm danh mục:", err);
-            return errorResponse(res, "Lỗi khi thêm danh mục");
+exports.addCategory = async (req, res) => {
+    const { name, parent_id } = req.body;
+
+    try {
+        // Kiểm tra nếu tên danh mục đã tồn tại
+        const existingCategory = await dbRepository.where('Categories', { name });
+        if (existingCategory.data.length > 0) {
+            return errorResponse(res, 'Danh mục với tên này đã tồn tại', 400);
         }
-        successResponse(res, "Danh mục đã được thêm thành công");
-    });
+
+        // Thêm danh mục mới
+        const newCategory = await dbRepository.create('Categories', { name, parent_id });
+        successResponse(res, 'Danh mục đã được thêm thành công', newCategory);
+    } catch (err) {
+        console.error("Lỗi khi thêm danh mục:", err);
+        errorResponse(res, "Lỗi khi thêm danh mục");
+    }
 };
 
-// Cập nhật danh mục
-exports.updateCategory = (req, res) => {
+// Cập nhật thông tin danh mục
+exports.updateCategory = async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
-    db.query('UPDATE categories SET ? WHERE id = ?', [{ name }, id], (err, result) => {
-        if (err) {
-            console.error("Lỗi khi cập nhật danh mục:", err);
-            return errorResponse(res, "Lỗi khi cập nhật danh mục");
+    const { name, parent_id } = req.body;
+
+    try {
+        const category = await dbRepository.getById('Categories', id);
+
+        if (!category.status) {
+            return errorResponse(res, 'Danh mục chỉnh sửa không tồn tại', 404);
         }
-        if (result.affectedRows === 0) {
-            return errorResponse(res, "Không tìm thấy danh mục để cập nhật", 404);
+
+        if (parent_id && !(await dbRepository.where('Categories', { parent_id })).status) {
+            return errorResponse(res, 'Danh mục cha không tồn tại', 404);
         }
-        successResponse(res, "Danh mục đã được cập nhật thành công");
-    });
+
+        // Kiểm tra nếu tên danh mục mới đã tồn tại
+        const existingCategory = await dbRepository.where('Categories', { name, parent_id: parent_id || null });
+        
+        if (existingCategory.data.length > 0) {
+            return errorResponse(res, 'Danh mục với tên này đã tồn tại', 400);
+        }
+
+        // Cập nhật danh mục
+        await dbRepository.update('Categories', id, { name, ...(parent_id ? { parent_id } : {}) });
+        successResponse(res, 'Danh mục đã được cập nhật thành công');
+    } catch (err) {
+        console.error("Lỗi khi cập nhật danh mục:", err);
+        errorResponse(res, "Lỗi khi cập nhật danh mục");
+    }
 };
 
-// Xóa danh mục với ràng buộc kiểm tra liên kết sản phẩm
-exports.deleteCategory = (req, res) => {
+// Xoá danh mục
+exports.deleteCategory = async (req, res) => {
     const { id } = req.params;
 
-    // Kiểm tra xem danh mục có liên kết với sản phẩm nào không
-    db.query('SELECT COUNT(*) AS count FROM product_categories WHERE category_id = ?', [id], (err, results) => {
-        if (err) {
-            console.error("Lỗi khi kiểm tra liên kết sản phẩm:", err);
-            return errorResponse(res, "Lỗi khi kiểm tra liên kết sản phẩm");
+    try {
+        // Kiểm tra xem danh mục có con không
+        const subCategories = await dbRepository.where('Categories', { parent_id: id });
+        if (subCategories.data.length > 0) {
+            return errorResponse(res, 'Danh mục này có danh mục con, bạn không thể xoá', 400);
         }
 
-        if (results[0].count > 0) {
-            return errorResponse(res, "Không thể xóa danh mục vì có sản phẩm liên kết", 400);
+        const products = await dbRepository.where('Products', { category_id: id });
+        if (products.data.length > 0) {
+            return errorResponse(res, 'Danh mục này đang có sản phẩm, bạn không thể xoá', 400);
         }
 
-        // Nếu không có sản phẩm liên kết, thực hiện xóa danh mục
-        db.query('DELETE FROM categories WHERE id = ?', [id], (err, result) => {
-            if (err) {
-                console.error("Lỗi khi xóa danh mục:", err);
-                return errorResponse(res, "Lỗi khi xóa danh mục");
-            }
-            if (result.affectedRows === 0) {
-                return errorResponse(res, "Không tìm thấy danh mục để xóa", 404);
-            }
-            successResponse(res, "Danh mục đã được xóa thành công");
-        });
-    });
+        // Xoá danh mục
+        await dbRepository.remove('Categories', { id });
+        successResponse(res, 'Danh mục đã được xoá thành công');
+    } catch (err) {
+        console.error("Lỗi khi xoá danh mục:", err);
+        errorResponse(res, "Lỗi khi xoá danh mục");
+    }
 };
