@@ -100,7 +100,7 @@ const getById = (table, id) => {
 }
 
 // Hàm lọc dữ liệu chính xác với điều kiện
-const where = (table, conditions) => {
+const where = (table, conditions, orderBy = null) => {
   return new Promise((resolve, reject) => {
     let query = `SELECT * FROM ${table} WHERE 1=1`
     const queryParams = []
@@ -112,6 +112,9 @@ const where = (table, conditions) => {
       })
     }
 
+    if (orderBy) {
+      query += ` ORDER BY ${orderBy}`
+    }
     db.query(query, queryParams, (err, results) => {
       if (err) {
         console.error(`Lỗi khi lấy dữ liệu từ bảng ${table}:`, err)
@@ -121,6 +124,7 @@ const where = (table, conditions) => {
         status: true,
         message: `Lấy dữ liệu thành công từ bảng ${table}`,
         data: results,
+        first: () => results[0],
       })
     })
   })

@@ -1,7 +1,7 @@
 import { api } from './api'
 
 // Lấy tất cả kho hàng
-export const fetchInventories = async (filters) => {
+export const fetchInventories = async (filters, itemType) => {
   try {
     let queryParams
     if (filters) {
@@ -16,7 +16,11 @@ export const fetchInventories = async (filters) => {
       } = filters
 
       queryParams = new URLSearchParams()
-
+      if (itemType === 'accessory') {
+        queryParams.append('type', 'accessory')
+      } else {
+        queryParams.append('type', 'product')
+      }
       // Add filters to the query string
       if (inventory_id) queryParams.append('inventory_id', inventory_id)
       if (product_id) queryParams.append('product_id', product_id)
@@ -41,13 +45,22 @@ export const fetchInventories = async (filters) => {
   }
 }
 
-// Thêm kho hàng mới
-export const addInventory = async (inventory) => {
+export const fetchInventoryHistory = async (inventoryId) => {
   try {
-    const response = await api.post('/inventorys', inventory)
+    const response = await api.get(`/inventories/${inventoryId}/history`)
     return response.data
   } catch (error) {
-    console.error('Lỗi khi thêm kho hàng:', error)
+    console.error('lỗi khi lấy lịch sử kho hàng:', error)
+    throw error
+  }
+}
+
+export const submitInventory = async (inventoryId, data) => {
+  try {
+    const response = await api.put(`/inventories/${inventoryId}/update`, data)
+    return response.data
+  } catch (error) {
+    console.error('Lỗi khi cập nhật kho hàng:', error)
     throw error
   }
 }
@@ -58,27 +71,6 @@ export const updateStatusInventory = async (id, data) => {
     return response.data
   } catch (error) {
     console.error('Lỗi khi cập nhật kho hàng:', error)
-    throw error
-  }
-}
-
-export const updateInventoryQuantity = async (id, quantityChange) => {
-  try {
-    const response = await api.post(`/api/inventory/${id}/update-quantity`, {
-      change: quantityChange,
-    })
-    return response.data
-  } catch (error) {
-    throw new Error('Failed to update inventory quantity')
-  }
-}
-
-export const deleteInventory = async (id) => {
-  try {
-    const response = await api.delete(`/inventorys/${id}`)
-    return response.data
-  } catch (error) {
-    console.error('Lỗi khi xóa kho hàng:', error)
     throw error
   }
 }

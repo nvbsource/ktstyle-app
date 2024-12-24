@@ -1,58 +1,60 @@
-import { useState, useEffect } from 'react'
-import {
-  Table,
-  Button,
-  Modal,
-  message,
-  Tag,
-  Card,
-  Row,
-  Col,
-  Input,
-  Select,
-  Switch,
-  Space,
-  DatePicker,
-  Slider,
-  Popconfirm,
-} from 'antd'
-import ProductForm from '../components/ProductForm'
-import {
-  fetchProducts,
-  addProduct,
-  deleteProduct,
-  updateProduct,
-  fetchCategories,
-  updateVariant,
-  addVariant,
-} from '../services/api'
-import { formatDate, formatNumberToCurrency } from '../helpers/helpers'
-import ProductCard from '../components/ProductCard'
 import {
   AppstoreOutlined,
   DeleteOutlined,
-  EditOutlined,
   EyeOutlined,
   FrownOutlined,
 } from '@ant-design/icons'
+import {
+  Button,
+  Col,
+  DatePicker,
+  message,
+  Modal,
+  Popconfirm,
+  Row,
+  Switch,
+  Table,
+  Tag,
+} from 'antd'
+import { useState } from 'react'
+import ProductCard from '../components/ProductCard'
 import ProductFilter from '../components/ProductFilter'
+import ProductForm from '../components/ProductForm'
+import ProductView from '../components/ProductView'
+import { formatDate, formatNumberToCurrency } from '../helpers/helpers'
+import {
+  addProduct,
+  addVariant,
+  deleteProduct,
+  fetchProducts,
+  updateProduct,
+  updateVariant,
+} from '../services/api'
 
 const { RangePicker } = DatePicker
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([])
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null) // Sản phẩm đang chỉnh sửa
-  const [isCardView, setIsCardView] = useState(false) // Kiểm tra chế độ hiển thị: Table or Card
+  const [isCardView, setIsCardView] = useState(true) // Kiểm tra chế độ hiển thị: Table or Card
   const [selectedProduct, setSelectedProduct] = useState(null) // Sản phẩm đang xem chi tiết
-
+  const [itemType, setItemType] = useState('product')
+  const [filters, setFilters] = useState({
+    id: '',
+    name: '',
+    category: null,
+    library: null,
+    price: null,
+    date: [],
+  })
+  
   // Hàm để lấy danh sách sản phẩm từ API
   const loadProducts = async () => {
     setLoading(true)
-
     try {
-      const response = await fetchProducts() // Pass filters as a parameter to the API
+      const response = await fetchProducts(filters, itemType) // Pass filters as a parameter to the API
       setProducts(response.data)
     } catch (error) {
       message.error('Lỗi khi tải sản phẩm')
@@ -82,10 +84,10 @@ const ProductManagement = () => {
   // Thêm sản phẩm mới
   const handleFormSubmit = async (product) => {
     if (editingProduct) {
-      const data = await updateProduct(editingProduct.id, product)
+      const data = await updateProduct(editingProduct.id, product, itemType)
       message.success(data.message)
     } else {
-      const data = await addProduct(product)
+      const data = await addProduct(product, itemType)
       message.success(data.message)
     }
     loadProducts() // Tải lại danh sách sản phẩm sau khi thêm/sửa
@@ -94,8 +96,6 @@ const ProductManagement = () => {
 
   // Thêm sản phẩm mới
   const handleFormVariantSubmit = async (variant, editVariantId) => {
-    console.log(editVariantId)
-
     if (editingProduct) {
       if (editVariantId) {
         const data = await updateVariant(editVariantId, variant)
@@ -163,23 +163,29 @@ const ProductManagement = () => {
       title: 'Danh mục',
       dataIndex: 'category',
       key: 'category',
-      render: (category) => category.name,
+      render: (category) => (!category ? 'Chưa cập nhật' : category.name),
     },
     {
-      title: 'Thư viện',
-      key: 'libraries',
-      render: (_, record) =>
-        record.libraries &&
-        record.libraries.map((library) => (
-          <Tag
-            color={
-              libraryColors[Math.floor(Math.random() * libraryColors.length)]
-            }
-            key={library.id}
-          >
-            {library.name}
-          </Tag>
-        )),
+      ...(itemType === 'product'
+        ? {
+            title: 'Thư viện',
+            key: 'libraries',
+            render: (_, record) =>
+              record.libraries &&
+              record.libraries.map((library) => (
+                <Tag
+                  color={
+                    libraryColors[
+                      Math.floor(Math.random() * libraryColors.length)
+                    ]
+                  }
+                  key={library.id}
+                >
+                  {library.name}
+                </Tag>
+              )),
+          }
+        : {}),
     },
     {
       title: 'Ngày tạo',
@@ -205,18 +211,11 @@ const ProductManagement = () => {
           >
             Xem
           </Button>
-          <Button
-            onClick={() => handleEditProduct(record)}
-            icon={<EditOutlined />}
-            style={{ marginRight: 8 }}
-          >
-            Sửa
-          </Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xóa?"
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="primary" danger icon={<DeleteOutlined />}>
               Xóa
             </Button>
           </Popconfirm>
@@ -224,6 +223,8 @@ const ProductManagement = () => {
       ),
     },
   ]
+
+  const getTypeName = () => (itemType === 'product' ? 'Sản phẩm' : 'Phụ kiện')
 
   // Hiển thị sản phẩm theo dạng card
   const renderProductCards = () => {
@@ -247,33 +248,48 @@ const ProductManagement = () => {
         ))}
         {products.length === 0 && (
           <div className="flex justify-center items-center flex-col p-6 mx-auto">
-            <FrownOutlined className="text-4xl text-gray-500 animate-bounce mb-4" />
+            <FrownOutlined className="text-4xl text-gray-600 animate-bounce mb-4" />
             <h3 className="text-center text-lg text-gray-700 font-semibold">
-              Không có sản phẩm nào được tìm thấy
+              Không có {getTypeName()} nào được tìm thấy
             </h3>
           </div>
         )}
       </Row>
     )
   }
-  console.log(editingProduct)
 
   return (
     <div className="p-8 bg-white rounded-md">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8">
         <div className="flex items-center gap-2 mb-4 md:mb-0">
           <AppstoreOutlined className="text-3xl" />
-          <h2 className="text-2xl font-semibold">Quản lý quần áo</h2>
+          <h2 className="text-2xl font-semibold">
+            Quản lý {getTypeName()} ({products.length})
+          </h2>
+          <div className="flex items-center mt-4 sm:mt-0">
+            <Switch
+              checked={itemType === 'accessory'}
+              onChange={() =>
+                setItemType((item) =>
+                  item === 'accessory' ? 'product' : 'accessory'
+                )
+              }
+              className="mr-3"
+            />
+            <span className="text-sm">Xem phụ kiện</span>
+          </div>
         </div>
         <Button type="primary" onClick={handleAddProduct}>
-          Thêm sản phẩm
+          Thêm {getTypeName()}
         </Button>
       </div>
       <ProductFilter
-        setLoading={setLoading}
-        setProducts={setProducts}
+        itemType={itemType}
         setIsCardView={setIsCardView}
         isCardView={isCardView}
+        setFilters={setFilters}
+        filters={filters}
+        loadProducts={loadProducts}
       />
       {isCardView ? (
         renderProductCards()
@@ -287,9 +303,11 @@ const ProductManagement = () => {
         />
       )}
       {/* Modal chỉnh sửa sản phẩm */}
-      {editingProduct && (
+      {(editingProduct || isModalVisible) && (
         <Modal
-          title={editingProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
+          title={
+            editingProduct ? `Sửa ${getTypeName()}` : `Thêm ${getTypeName()}`
+          }
           visible={isModalVisible}
           onCancel={handleCancel}
           footer={null}
@@ -299,6 +317,7 @@ const ProductManagement = () => {
             onSubmit={handleFormSubmit}
             onSubmitVariant={handleFormVariantSubmit}
             initialData={editingProduct}
+            itemType={itemType}
           />
         </Modal>
       )}
@@ -309,112 +328,13 @@ const ProductManagement = () => {
           onCancel={() => setSelectedProduct(null)}
           footer={null}
           width="80%"
-          title="Chi tiết sản phẩm"
+          title={`Chi tiết ${getTypeName()}`}
         >
-          <div className="product-detail-content">
-            <Row gutter={24}>
-              {/* Cột bên trái cho thông tin sản phẩm */}
-              <Col xs={24} md={12}>
-                <div className="product-info border border-gray-300 rounded-lg p-4">
-                  <Row gutter={16}>
-                    <Col span={8}>
-                      <strong className="text-lg">Tên sản phẩm:</strong>
-                    </Col>
-                    <Col span={16} className="text-lg">
-                      {selectedProduct.name}
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={8}>
-                      <strong className="text-lg">Mô tả:</strong>
-                    </Col>
-                    <Col span={16} className="text-lg">
-                      {selectedProduct.description}
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={8}>
-                      <strong className="text-lg">Giá nhập:</strong>
-                    </Col>
-                    <Col span={16} className="text-lg">
-                      {formatNumberToCurrency(selectedProduct.import_price)} VND
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={8}>
-                      <strong className="text-lg">Giá thuê:</strong>
-                    </Col>
-                    <Col span={16} className="text-lg">
-                      {formatNumberToCurrency(selectedProduct.rental_price)} VND
-                    </Col>
-                  </Row>
-                </div>
-              </Col>
-
-              {/* Cột bên phải cho ảnh sản phẩm */}
-              <Col xs={24} md={12}>
-                <div className="h-[700px] overflow-auto">
-                  <div
-                    style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}
-                  >
-                    {selectedProduct.images.map((image, index) => (
-                      <img
-                        key={index}
-                        alt={`product-image-${index}`}
-                        src={image}
-                        style={{
-                          width: '32%',
-                          height: 'auto',
-                          borderRadius: '8px',
-                          border: '1px solid #f0f0f0',
-                          objectFit: 'cover',
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </Col>
-            </Row>
-
-            {/* Danh mục sản phẩm */}
-            <div className="product-categories flex flex-wrap gap-2 mt-2">
-              {selectedProduct.libraries &&
-                selectedProduct.libraries.map((library) => (
-                  <Tag key={library.id} color="blue" className="text-lg">
-                    {library.name}
-                  </Tag>
-                ))}
-            </div>
-
-            {/* Giá nhập và giá thuê */}
-            <div className="product-price p-4 mt-4 bg-gray-50 border-t border-gray-200">
-              <span className="block text-lg font-bold text-gray-700">
-                Giá nhập: {formatNumberToCurrency(selectedProduct.import_price)}{' '}
-                VND
-              </span>
-              <span className="block text-lg font-bold text-gray-700">
-                Giá thuê: {formatNumberToCurrency(selectedProduct.rental_price)}{' '}
-                VND
-              </span>
-            </div>
-
-            {/* Nút chỉnh sửa sản phẩm */}
-            <div
-              style={{
-                marginTop: '20px',
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}
-            >
-              <Button
-                type="primary"
-                onClick={() => handleEditProduct(selectedProduct)}
-                style={{ marginRight: '10px' }}
-              >
-                Chỉnh sửa sản phẩm
-              </Button>
-            </div>
-          </div>
+          <ProductView
+            selectedProduct={selectedProduct}
+            editProduct={handleEditProduct}
+            itemType={itemType}
+          />
         </Modal>
       )}
     </div>

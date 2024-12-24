@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.search-auto.form-control {
+  border: 1px solid #ebebeb;
+  padding: 0 110px 0 15px;
+  width: 100%;
+  max-width: 100%;
+  display: block;
+}
+
+html,
+body {
+  color: #040303;
+}
+
+body {
+  font-family: "Varela Round", sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Bạn có thể áp dụng font cho các thành phần cụ thể */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Varela Round", sans-serif;
+  font-weight: 600;
+}
+
+p {
+  font-family: "Varela Round", sans-serif;
+  font-weight: 400;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  display: none;
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  color: inherit !important;
+}
+
+.animated {
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.fadeInDown {
+  -webkit-animation-name: fadeInDown;
+  animation-name: fadeInDown;
+}
+@keyframes fadeInDown {
+  from {
+      opacity: 0;
+      -webkit-transform: translate3d(0, -100%, 0);
+      transform: translate3d(0, -100%, 0)
+  }
+
+  to {
+      opacity: 1;
+      -webkit-transform: none;
+      transform: none
+  }
+}

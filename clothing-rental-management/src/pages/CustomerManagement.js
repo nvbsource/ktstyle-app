@@ -1,5 +1,5 @@
 import { AppstoreOutlined, EditOutlined } from '@ant-design/icons'
-import { Button, DatePicker, Form, Input, message, Modal, Table } from 'antd'
+import { Button, Col, DatePicker, Form, Input, message, Modal, Row, Table } from 'antd'
 import { useEffect, useState } from 'react'
 import CustomerFilter from '../components/CustomerFilter'
 import { fetchCustomers, updateCustomer } from '../services/customerApi'
@@ -32,6 +32,11 @@ const CustomerManagement = () => {
         name: editingCustomer.name,
         phone: editingCustomer.phone,
         dob: editingCustomer.dob ? dayjs(editingCustomer.dob) : null,
+        facebook: editingCustomer.facebook,
+        zalo: editingCustomer.zalo,
+        instagram: editingCustomer.instagram,
+        more_social: editingCustomer.more_social,
+        note: editingCustomer.note,
       })
     }
   }, [editingCustomer])
@@ -69,6 +74,11 @@ const CustomerManagement = () => {
     { title: 'Mã KH', dataIndex: 'id', key: 'id', render: (text) => `${text}` },
     { title: 'Họ và tên', dataIndex: 'name', key: 'name' },
     { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone' },
+    { title: 'Facebook', dataIndex: 'facebook', key: 'facebook' },
+    { title: 'Zalo', dataIndex: 'zalo', key: 'zalo' },
+    { title: 'Instagram', dataIndex: 'instagram', key: 'instagram' },
+    { title: 'Nền tảng khác', dataIndex:'more_social', key:'more_social' },
+    { title: 'Ghi chú', dataIndex: 'note', key: 'note' },
     {
       title: 'Sinh nhật',
       dataIndex: 'dob',
@@ -98,7 +108,6 @@ const CustomerManagement = () => {
       ),
     },
   ]
-  console.log(editingCustomer)
 
   return (
     <div className="p-8 bg-white rounded-md">
@@ -143,6 +152,29 @@ const CustomerManagement = () => {
             rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
           >
             <Input placeholder="Nhập số điện thoại" />
+          </Form.Item>
+          <Row gutter={24}>
+            <Col span={8}>
+              <Form.Item label="Facebook" name="facebook">
+                <Input placeholder="Nhập link facebook" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="Instagram" name="instagram">
+                <Input placeholder="Nhập ID hoặc link instagram" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="Zalo" name="zalo">
+                <Input placeholder="Nhập số điện thoại zalo" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item label="Mạng xã hội khác" name="more_social">
+            <Input placeholder="Nhập link trang cá nhân của khách hàng" />
+          </Form.Item>
+          <Form.Item label="Ghi chú" name="note">
+            <Input placeholder="Nhập ghi chú nếu có" />
           </Form.Item>
 
           <Form.Item

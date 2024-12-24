@@ -1,20 +1,16 @@
-import { DatePicker, Input, message, Select } from 'antd'
+import { DatePicker, Input, Select, Switch } from 'antd'
 import React, { useEffect, useState } from 'react'
-import { fetchInventories } from '../services/inventoryApi' // Giả sử fetchInventories là API gọi khách hàng
 const { RangePicker } = DatePicker
 const { Option } = Select
 
-const InventoryFilter = ({ setLoading, setInventories }) => {
-  const [filters, setFilters] = useState({
-    inventory_id: '',
-    product_id: '',
-    product_name: '',
-    size: '',
-    color: '',
-    status: '', // Thêm trạng thái vào filters
-    date_update: [],
-  })
-
+const InventoryFilter = ({
+  setIsCardView,
+  isCardView,
+  itemType,
+  filters,
+  setFilters,
+  loadInventories
+}) => {
   const [debouncedFilters, setDebouncedFilters] = useState(filters)
   const [debounceTimeout, setDebounceTimeout] = useState(null)
 
@@ -31,8 +27,8 @@ const InventoryFilter = ({ setLoading, setInventories }) => {
   }, [filters])
 
   useEffect(() => {
-    loadInventories()
-  }, [debouncedFilters])
+    loadInventories(filters, itemType)
+  }, [debouncedFilters, itemType])
 
   const handleProductNameFilterChange = (e) => {
     const value = e.target.value
@@ -86,17 +82,6 @@ const InventoryFilter = ({ setLoading, setInventories }) => {
     }))
   }
 
-  const loadInventories = async () => {
-    setLoading(true)
-    try {
-      const response = await fetchInventories(filters)
-      setInventories(response.data)
-    } catch (error) {
-      message.error('Lỗi khi tải khách hàng')
-    }
-    setLoading(false)
-  }
-
   return (
     <div className="flex flex-wrap justify-between mb-4 gap-4">
       <div className="flex gap-4 flex-wrap w-full sm:w-auto">
@@ -136,30 +121,34 @@ const InventoryFilter = ({ setLoading, setInventories }) => {
             className="w-full"
           />
         </div>
-        {/* Color Filter */}
-        <div className="flex flex-col w-full sm:w-48">
-          <label className="mb-2 text-sm font-medium text-gray-700">
-            Tìm theo màu
-          </label>
-          <Input
-            placeholder="Tìm theo màu"
-            value={filters.color}
-            onChange={handleColorFilterChange}
-            className="w-full"
-          />
-        </div>
-        {/* Size Filter */}
-        <div className="flex flex-col w-full sm:w-48">
-          <label className="mb-2 text-sm font-medium text-gray-700">
-            Tìm kích thướt
-          </label>
-          <Input
-            placeholder="Tìm theo kích thướt"
-            value={filters.size}
-            onChange={handleSizeFilterChange}
-            className="w-full"
-          />
-        </div>
+        {itemType === 'product' && (
+          <>
+            {/* Color Filter */}
+            <div className="flex flex-col w-full sm:w-48">
+              <label className="mb-2 text-sm font-medium text-gray-700">
+                Tìm theo màu
+              </label>
+              <Input
+                placeholder="Tìm theo màu"
+                value={filters.color}
+                onChange={handleColorFilterChange}
+                className="w-full"
+              />
+            </div>
+            {/* Size Filter */}
+            <div className="flex flex-col w-full sm:w-48">
+              <label className="mb-2 text-sm font-medium text-gray-700">
+                Tìm kích thướt
+              </label>
+              <Input
+                placeholder="Tìm theo kích thướt"
+                value={filters.size}
+                onChange={handleSizeFilterChange}
+                className="w-full"
+              />
+            </div>
+          </>
+        )}
         {/* Status Filter */}
         <div className="flex flex-col w-full sm:w-48">
           <label className="mb-2 text-sm font-medium text-gray-700">
@@ -172,9 +161,8 @@ const InventoryFilter = ({ setLoading, setInventories }) => {
             className="w-full"
           >
             <Option value="">Tất cả</Option>
-            <Option value="available">Sẵn có</Option>
-            <Option value="rented">Đang cho thuê</Option>
-            <Option value="out_of_stock">Hết hàng</Option>
+            <Option value="available">Sẵn sàng</Option>
+            <Option value="unavailable">Không sẵn sàng</Option>
           </Select>
         </div>
         {/* Date Filter */}
@@ -184,6 +172,15 @@ const InventoryFilter = ({ setLoading, setInventories }) => {
           </label>
           <RangePicker onChange={handleDateFilterChange} className="w-full" />
         </div>
+      </div>
+      {/* Card View Toggle */}
+      <div className="flex items-center mt-4 sm:mt-0">
+        <Switch
+          checked={isCardView}
+          onChange={() => setIsCardView(!isCardView)}
+          className="mr-3"
+        />
+        <span className="text-sm">Xem dưới dạng Card</span>
       </div>
     </div>
   )

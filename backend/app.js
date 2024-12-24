@@ -1,21 +1,11 @@
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const productRoutes = require('./routes/productRoutes')
-const uploadRoute = require('./routes/uploadRoutes')
-const categoryRoutes = require('./routes/categoryRoutes')
-const libraryRoutes = require('./routes/libraryRoutes')
-const colorRoutes = require('./routes/colorRoutes')
-const rentalRoutes = require('./routes/rentalRoutes')
-const productContentsRoutes = require('./routes/productContentsRoutes')
-const topicRoutes = require('./routes/topicRoutes')
-const cartRoutes = require('./routes/cartRoutes')
-const customerRoutes = require('./routes/customerRoutes')
-const transactionRoutes = require('./routes/transactionRoutes')
-const orderRoutes = require('./routes/orderRoutes')
-const variantRoutes = require('./routes/variantRoutes')
-const inventoryRoutes = require('./routes/inventoryRoutes')
+
 const path = require('path')
+
+const clientRoutes = require('./routes/client')
+const adminRoutes = require('./routes/admin')
 
 const app = express()
 app.use(cors())
@@ -24,21 +14,8 @@ app.use(bodyParser.json())
 app.use('/models', express.static(path.join(__dirname, 'public', 'models')))
 app.use('/uploads', express.static('uploads'))
 
-app.use('/api', uploadRoute)
-
-app.use('/cart', cartRoutes)
-app.use('/categories', categoryRoutes)
-app.use('/libraries', libraryRoutes)
-app.use('/colors', colorRoutes)
-app.use('/products', productRoutes)
-app.use('/contents', productContentsRoutes)
-app.use('/topics', topicRoutes)
-app.use('/rentals', rentalRoutes)
-app.use('/customers', customerRoutes)
-app.use('/inventories', inventoryRoutes)
-app.use('/transactions', transactionRoutes)
-app.use('/orders', orderRoutes)
-app.use('/variants', variantRoutes)
+app.use("/api/client", clientRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(5005, () => {
   console.log('Server is running on port 5005')

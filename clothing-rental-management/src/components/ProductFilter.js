@@ -8,30 +8,22 @@ import {
   DatePicker,
   message,
 } from 'antd'
-import { fetchProducts } from '../services/api' // Giả sử fetchProducts là API gọi sản phẩm
 import { flattenObjectArray, formatNumberToCurrency } from '../helpers/helpers'
 import { fetchCategories } from '../services/categoryApi'
 import { fetchLibraries } from '../services/libraryApi'
 const { RangePicker } = DatePicker
 
 const ProductFilter = ({
-  setLoading,
-  setProducts,
   setIsCardView,
   isCardView,
+  itemType,
+  filters,
+  setFilters,
+  loadProducts
 }) => {
-  const [filters, setFilters] = useState({
-    name: '',
-    category: null,
-    library: null,
-    price: null,
-    date: [],
-  })
-
   const [debouncedFilters, setDebouncedFilters] = useState(filters)
   const [categories, setCategories] = useState([])
   const [libraries, setLibraries] = useState([])
-
   const [debounceTimeout, setDebounceTimeout] = useState(null)
 
   useEffect(() => {
@@ -52,7 +44,7 @@ const ProductFilter = ({
   // Effect to call loadProducts when filters change
   useEffect(() => {
     loadProducts()
-  }, [debouncedFilters]) // Khi filter thay đổi sẽ gọi lại API
+  }, [debouncedFilters, itemType]) // Khi filter thay đổi sẽ gọi lại API
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -81,6 +73,14 @@ const ProductFilter = ({
     setFilters((prevFilters) => ({
       ...prevFilters,
       name: value,
+    }))
+  }
+  // Hàm xử lý thay đổi của tên
+  const handleIdFilterChange = (e) => {
+    const value = e.target.value
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      id: value,
     }))
   }
 
@@ -112,25 +112,24 @@ const ProductFilter = ({
   const handlePriceFilterChange = (value) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
-      price: value[0] === 0 && value[1] === 10000000 ? null : value,
+      price: value[0] === 0 && value[1] === 1000000 ? null : value,
     }))
-  }
-
-  // Hàm gọi API để lấy dữ liệu với các bộ lọc
-  const loadProducts = async () => {
-    setLoading(true)
-    try {
-      const response = await fetchProducts(filters) // Pass filters as a parameter to the API
-      setProducts(response.data)
-    } catch (error) {
-      message.error('Lỗi khi tải sản phẩm')
-    }
-    setLoading(false)
   }
 
   return (
     <div className="flex flex-wrap justify-between mb-4 gap-4">
       <div className="flex gap-4 flex-wrap w-full sm:w-auto">
+        <div className="flex flex-col w-full sm:w-48">
+          <label className="mb-2 text-sm font-medium text-gray-700">
+            Tìm mã sản phẩm
+          </label>
+          <Input
+            placeholder="Tìm mã sản phẩm"
+            value={filters.id}
+            onChange={handleIdFilterChange}
+            className="w-full"
+          />
+        </div>
         {/* Name Filter */}
         <div className="flex flex-col w-full sm:w-48">
           <label className="mb-2 text-sm font-medium text-gray-700">
@@ -164,25 +163,27 @@ const ProductFilter = ({
           />
         </div>
         {/* Category Filter */}
-        <div className="flex flex-col w-full sm:w-48">
-          <label className="mb-2 text-sm font-medium text-gray-700">
-            Chọn thư viện
-          </label>
-          <Select
-            placeholder="Chọn thư viện"
-            value={filters.library}
-            onChange={handleLibraryFilterChange}
-            className="w-full"
-            options={[
-              { value: null, label: 'Tất cả thư viện' }, // Option for "All Libraries"
-              ...libraries.map((library) => ({
-                value: library.id,
-                label: library.name,
-              })),
-            ]}
-          />
-        </div>
-
+        {
+          itemType === 'product' && (<div className="flex flex-col w-full sm:w-48">
+            <label className="mb-2 text-sm font-medium text-gray-700">
+              Chọn thư viện
+            </label>
+            <Select
+              placeholder="Chọn thư viện"
+              value={filters.library}
+              onChange={handleLibraryFilterChange}
+              className="w-full"
+              options={[
+                { value: null, label: 'Tất cả thư viện' }, // Option for "All Libraries"
+                ...libraries.map((library) => ({
+                  value: library.id,
+                  label: library.name,
+                })),
+              ]}
+            />
+          </div>)
+        }
+        
         {/* Date Filter */}
         <div className="flex flex-col w-full sm:w-72">
           <label className="mb-2 text-sm font-medium text-gray-700">
@@ -199,11 +200,11 @@ const ProductFilter = ({
           <Slider
             range
             min={0}
-            max={10000000}
+            max={1000000}
             step={10000}
-            defaultValue={[0, 10000000]}
+            defaultValue={[0, 1000000]}
             onChange={handlePriceFilterChange}
-            value={filters.price || [0, 10000000]} // Nếu price là null, hiển thị tất cả
+            value={filters.price || [0, 1000000]} // Nếu price là null, hiển thị tất cả
             className="w-full"
             tooltip={{
               formatter: (value) => {
@@ -216,18 +217,15 @@ const ProductFilter = ({
           />
         </div>
       </div>
-
       {/* Card View Toggle */}
-      {setIsCardView && (
-        <div className="flex items-center mt-4 sm:mt-0">
-          <Switch
-            checked={isCardView}
-            onChange={() => setIsCardView(!isCardView)}
-            className="mr-3"
-          />
-          <span className="text-sm">Xem dưới dạng Card</span>
-        </div>
-      )}
+      <div className="flex items-center mt-4 sm:mt-0">
+        <Switch
+          checked={isCardView}
+          onChange={() => setIsCardView(!isCardView)}
+          className="mr-3"
+        />
+        <span className="text-sm">Xem dưới dạng Card</span>
+      </div>
     </div>
   )
 }

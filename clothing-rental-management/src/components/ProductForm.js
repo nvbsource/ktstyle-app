@@ -17,10 +17,11 @@ import { useState, useEffect } from 'react'
 import { fetchCategories } from '../services/categoryApi'
 import { fetchLibraries } from '../services/libraryApi'
 import { deleteVariant, fetchVariants } from '../services/api'
+import { textToSlug } from '../helpers/helpers'
 
 const { TabPane } = Tabs
 
-const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
+const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
   const [form] = Form.useForm()
   const [formVariant] = Form.useForm()
   const [fileList, setFileList] = useState([])
@@ -63,7 +64,9 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
       }
     }
     loadCategories()
-    loadLibraries()
+    if (itemType === 'product') {
+      loadLibraries()
+    }
   }, [])
 
   useEffect(() => {
@@ -71,11 +74,15 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
       form.setFieldsValue({
         name: initialData.name,
         description: initialData.description,
+        slug: initialData.slug || textToSlug(initialData.name),
         notes: initialData.notes,
         import_price: initialData.import_price,
         rental_price: initialData.rental_price,
         category_id: initialData.category ? initialData.category.id : null,
-        libraries: initialData.libraries.map((library) => library.id),
+        libraries:
+          itemType === 'product'
+            ? initialData.libraries.map((library) => library.id)
+            : null,
       })
       setFileList(
         initialData.images.map((url, index) => ({
@@ -106,6 +113,13 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
       loadVariants()
     }
   }, [tabActive])
+
+  const handleValuesChange = (changedValues, allValues) => {
+    if (changedValues.name) {
+      const slug = textToSlug(changedValues.name)
+      form.setFieldsValue({ slug }) // Cập nhật giá trị field "slug"
+    }
+  }
 
   const loadVariants = async () => {
     setLoadingVariant(true)
@@ -141,14 +155,15 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
     formData.append('file', file.originFileObj || file)
 
     try {
-      const response = await fetch('http://localhost:5005/api/upload', {
+      const response = await fetch('http://localhost:5005/api/admin/upload', {
         method: 'POST',
         body: formData,
       })
       const data = await response.json()
       const url = data.url
+      const urls = (prev) => [...prev, url]
 
-      setImageUrls((prev) => [...prev, url])
+      setImageUrls(urls)
       setImageUrlsMap((prevMap) => ({ ...prevMap, [file.uid]: url }))
       setFileList((prevList) =>
         prevList.map((f) =>
@@ -166,7 +181,6 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
 
   const handleFinish = async (values) => {
     const productData = { ...values, images: imageUrls }
-
     try {
       await onSubmit(productData)
       form.resetFields()
@@ -289,104 +303,149 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
     <Tabs onChange={(key) => setTabActive(key)} activeKey={tabActive}>
       {/* Tab 1: Thông tin Sản phẩm */}
       <TabPane tab="Thông tin sản phẩm" key="1">
-        <Form form={form} onFinish={handleFinish} layout="vertical">
+        <Form
+          form={form}
+          onFinish={handleFinish}
+          layout="vertical"
+          className="space-y-6 bg-white p-6 rounded-lg shadow-md"
+          onValuesChange={handleValuesChange}
+        >
+          {/* Tên sản phẩm */}
           <Form.Item
             label="Tên sản phẩm"
             name="name"
             rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm' }]}
+            className="col-span-1"
           >
-            <Input placeholder="Nhập tên sản phẩm" />
+            <Input placeholder="Nhập tên sản phẩm" className="rounded-md" />
           </Form.Item>
-
           <Form.Item
-            label="Mô tả"
-            name="description"
-            rules={[
-              { required: true, message: 'Vui lòng nhập mô tả sản phẩm' },
-            ]}
+            label="Url sản phẩm"
+            name="slug"
+            rules={[{ required: true, message: 'Vui lòng nhập url sản phẩm' }]}
+            className="col-span-1"
           >
-            <Input.TextArea rows={4} placeholder="Nhập mô tả sản phẩm" />
+            <Input placeholder="Nhập tên sản phẩm" className="rounded-md" />
           </Form.Item>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Form.Item label="Mô tả" name="description" className="col-span-1">
+              <Input.TextArea
+                rows={4}
+                placeholder="Nhập mô tả sản phẩm"
+                className="rounded-md"
+              />
+            </Form.Item>
+            {/* Ghi chú */}
+            <Form.Item label="Ghi chú" name="notes">
+              <Input.TextArea
+                rows={4}
+                placeholder="Nhập ghi chú sản phẩm"
+                className="rounded-md"
+              />
+            </Form.Item>
+          </div>
 
-          <Form.Item label="Ghi chú" name="notes">
-            <Input.TextArea rows={4} placeholder="Nhập ghi chú sản phẩm" />
-          </Form.Item>
-
-          <Form.Item
-            label="Giá nhập"
-            name="import_price"
-            rules={[
-              {
-                required: true,
-                message: 'Vui lòng nhập giá sản phẩm',
-              },
-            ]}
-          >
-            <Input
-              placeholder="Nhập giá cho thuê sản phẩm"
-              type="number"
-              min={0}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Giá cho thuê"
-            name="rental_price"
-            rules={[
-              {
-                validator: (_, value) => {
-                  if (!value) {
-                    return Promise.reject(
-                      new Error('Vui lòng nhập giá cho thuê')
-                    )
-                  }
-                  if (value < 10000) {
-                    return Promise.reject(
-                      new Error('Giá cho thuê phải từ 10,000 VND trở lên')
-                    )
-                  }
-                  if (value % 1000) {
-                    return Promise.reject(
-                      new Error('Giá cho thuê phải chia hết cho 1.000')
-                    )
-                  }
-                  return Promise.resolve()
+          {/* Giá nhập và Giá cho thuê */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Form.Item
+              label="Giá nhập"
+              name="import_price"
+              rules={[
+                {
+                  required: true,
+                  message: 'Vui lòng nhập giá sản phẩm',
                 },
-              },
-            ]}
+              ]}
+              className="col-span-1"
+            >
+              <Input
+                placeholder="Nhập giá sản phẩm"
+                type="number"
+                min={0}
+                className="rounded-md"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Giá cho thuê"
+              name="rental_price"
+              rules={[
+                {
+                  validator: (_, value) => {
+                    if (!value) {
+                      return Promise.resolve()
+                    }
+                    if (value < 10000) {
+                      return Promise.reject(
+                        new Error('Giá cho thuê phải từ 10.000 VND trở lên')
+                      )
+                    }
+                    if (value % 1000) {
+                      return Promise.reject(
+                        new Error('Giá cho thuê phải chia hết cho 1.000')
+                      )
+                    }
+                    return Promise.resolve()
+                  },
+                },
+              ]}
+              className="col-span-1"
+            >
+              <Input
+                placeholder="Nhập giá cho thuê sản phẩm"
+                type="number"
+                className="rounded-md"
+              />
+            </Form.Item>
+          </div>
+
+          <div
+            className={`grid grid-cols-1 ${itemType === 'product' ? 'md:grid-cols-2' : ''} gap-6`}
           >
-            <Input placeholder="Nhập giá cho thuê sản phẩm" type="number" />
-          </Form.Item>
+            <Form.Item
+              label="Danh mục"
+              name="category_id"
+              className="col-span-1"
+            >
+              <TreeSelect
+                treeData={treeSelectData}
+                placeholder="Chọn danh mục"
+                allowClear
+                treeDefaultExpandAll
+                className="rounded-md"
+              />
+            </Form.Item>
+            {itemType === 'product' && (
+              <Form.Item
+                label="Thư viện"
+                name="libraries"
+                className="col-span-1"
+              >
+                <Select
+                  mode="multiple"
+                  placeholder="Chọn danh mục"
+                  options={libraries.map((library) => ({
+                    label: library.name,
+                    value: library.id,
+                  }))}
+                  tagRender={tagRender}
+                  className="rounded-md"
+                />
+              </Form.Item>
+            )}
+          </div>
 
-          <Form.Item label="Danh mục" name="category_id">
-            <TreeSelect
-              treeData={treeSelectData} // Dữ liệu chuẩn hóa cho TreeSelect
-              placeholder="Chọn danh mục"
-              allowClear
-              treeDefaultExpandAll
-            />
-          </Form.Item>
-          <Form.Item label="Thư viện" name="libraries">
-            <Select
-              mode="multiple"
-              placeholder="Chọn danh mục"
-              options={libraries.map((library) => ({
-                label: library.name,
-                value: library.id,
-              }))}
-              tagRender={tagRender}
-            />
-          </Form.Item>
-
+          {/* Hình ảnh sản phẩm */}
           <Form.Item
             label="Hình ảnh sản phẩm"
             name="images"
             rules={[
               {
-                validator: (_, value) =>
-                  imageUrls.length > 0
+                validator: (_, value) => {
+                  return value && value.fileList && value.fileList.length > 0
                     ? Promise.resolve()
-                    : Promise.reject('Vui lòng tải ít nhất một ảnh'),
+                    : Promise.reject('Vui lòng tải ít nhất một ảnh')
+                },
               },
             ]}
           >
@@ -405,9 +464,13 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
               </div>
             </Upload>
           </Form.Item>
-          <Button type="primary" htmlType="submit" style={{ marginTop: 16 }}>
-            {initialData ? 'Cập nhật' : 'Thêm'}
-          </Button>
+
+          {/* Nút hành động */}
+          <div className="flex justify-end">
+            <Button type="primary" htmlType="submit" className="rounded-md">
+              {initialData ? 'Cập nhật' : 'Thêm'}
+            </Button>
+          </div>
         </Form>
         <Modal
           visible={previewVisible}
@@ -419,139 +482,109 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData }) => {
           </div>
         </Modal>
       </TabPane>
-
-      {/* Tab 2: Quản lý Biến thể */}
-      <TabPane tab="Biến thể" key="2" disabled={!initialData}>
-        <Table
-          dataSource={variants}
-          loading={loadingVariant}
-          columns={[
-            {
-              title: 'Id',
-              dataIndex: 'id',
-              key: 'id',
-            },
-            {
-              title: 'Size',
-              dataIndex: 'size',
-              key: 'size',
-            },
-            {
-              title: 'Màu',
-              dataIndex: 'color',
-              key: 'color',
-            },
-            {
-              title: 'Số lượng tồn trong kho',
-              dataIndex: 'quantity',
-              key: 'quantity',
-            },
-            {
-              title: 'Hành động',
-              render: (variant, __, index) => (
-                <>
-                  <Button type="link" onClick={() => handleEditVariant(index)}>
-                    Sửa
-                  </Button>
-                  <Popconfirm
-                    title="Bạn có chắc chắn muốn xóa?"
-                    onConfirm={() => handleDeleteVariant(variant)}
-                  >
-                    <Button type="link" danger>
-                      Xóa
+      {itemType === 'product' && (
+        <TabPane tab="Biến thể" key="2" disabled={!initialData}>
+          <Table
+            dataSource={variants}
+            loading={loadingVariant}
+            columns={[
+              {
+                title: 'Id',
+                dataIndex: 'id',
+                key: 'id',
+              },
+              {
+                title: 'Size',
+                dataIndex: 'size',
+                key: 'size',
+              },
+              {
+                title: 'Màu',
+                dataIndex: 'color',
+                key: 'color',
+              },
+              // {
+              //   title: 'Số lượng tồn trong kho',
+              //   dataIndex: 'quantity',
+              //   key: 'quantity',
+              // },
+              {
+                title: 'Hành động',
+                render: (variant, __, index) => (
+                  <>
+                    <Button
+                      type="primary"
+                      className="mr-3"
+                      onClick={() => handleEditVariant(index)}
+                    >
+                      Sửa
                     </Button>
-                  </Popconfirm>
-                </>
-              ),
-            },
-          ]}
-          rowKey={(record, index) => index}
-        />
+                    {variant.quantity <= 0 && (
+                      <Button
+                        type="primary"
+                        onClick={() => handleDeleteVariant(index)}
+                        danger
+                      >
+                        Xóa
+                      </Button>
+                    )}
+                  </>
+                ),
+              },
+            ]}
+            rowKey={(record, index) => index}
+          />
 
-        {showFormVariant && (
-          <div style={{ marginTop: 16 }}>
-            <Form
-              form={formVariant}
-              initialValues={initValuesVariant}
-              onFinish={handleFinishVariant}
-              layout="vertical"
-            >
-              <Form.Item
-                label="Size"
-                name="size"
-                rules={[{ required: true, message: 'Vui lòng nhập size' }]}
+          {showFormVariant && (
+            <div style={{ marginTop: 16 }}>
+              <Form
+                form={formVariant}
+                initialValues={initValuesVariant}
+                onFinish={handleFinishVariant}
+                layout="vertical"
               >
-                <Input placeholder="Nhập size" />
-              </Form.Item>
-
-              <Form.Item
-                label="Màu sắc"
-                name="color"
-                rules={[{ required: true, message: 'Vui lòng nhập màu sắc' }]}
-              >
-                <Input placeholder="Nhập màu sắc" />
-              </Form.Item>
-
-              {!editingVariant && (
                 <Form.Item
-                  label="Số lượng (nếu đã có sản phẩm này vui lòng nhập số lượng)	"
-                  name="quantity"
-                  rules={[
-                    {
-                      validator: (_, value) => {
-                        // Kiểm tra nếu không nhập gì (đã có rule required xử lý)
-                        if (value === undefined || value === null) {
-                          return Promise.resolve()
-                        }
-                        if (value > 100) {
-                          return Promise.reject(
-                            new Error('Số lượng chỉ nhập từ 1-100')
-                          )
-                        } else if (value < 0) {
-                          return Promise.reject(
-                            new Error(
-                              'Số lượng phải là số và lớn hơn hoặc bằng 0'
-                            )
-                          )
-                        } else {
-                          return Promise.resolve()
-                        }
-                      },
-                    },
-                  ]}
+                  label="Size"
+                  name="size"
+                  rules={[{ required: true, message: 'Vui lòng nhập size' }]}
                 >
-                  <Input
-                    type="number"
-                    placeholder="Số lượng (nếu đã có sản phẩm này vui lòng nhập số lượng)	"
-                  />
+                  <Input placeholder="Nhập size" />
                 </Form.Item>
-              )}
-              {editingVariant && (
-                <Button
-                  type="dashed"
-                  htmlType="submit"
-                  className="mr-3"
-                  onClick={handleCloseEditVariant}
+
+                <Form.Item
+                  label="Màu sắc"
+                  name="color"
+                  rules={[{ required: true, message: 'Vui lòng nhập màu sắc' }]}
                 >
-                  Đóng
+                  <Input placeholder="Nhập màu sắc" />
+                </Form.Item>
+                {editingVariant && (
+                  <Button
+                    type="dashed"
+                    htmlType="submit"
+                    className="mr-3"
+                    onClick={handleCloseEditVariant}
+                  >
+                    Đóng
+                  </Button>
+                )}
+                <Button type="primary" htmlType="submit">
+                  {editingVariant ? 'Cập nhật' : 'Thêm mới'}
                 </Button>
-              )}
-              <Button type="primary" htmlType="submit">
-                {editingVariant ? 'Cập nhật' : 'Thêm mới'}
-              </Button>
-            </Form>
-          </div>
-        )}
-        {(!showFormVariant || editingVariant) && (
-          <Button
-            type="dashed"
-            onClick={handleShowFormCreateVariant}
-            style={{ marginTop: 16 }}
-          >
-            <PlusOutlined /> Thêm biến thể
-          </Button>
-        )}
-      </TabPane>
+              </Form>
+            </div>
+          )}
+          {(!showFormVariant || editingVariant) && (
+            <Button
+              type="dashed"
+              onClick={handleShowFormCreateVariant}
+              style={{ marginTop: 16 }}
+            >
+              <PlusOutlined /> Thêm biến thể
+            </Button>
+          )}
+        </TabPane>
+      )}
     </Tabs>
   )
 }

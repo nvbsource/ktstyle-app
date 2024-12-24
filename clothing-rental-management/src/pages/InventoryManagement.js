@@ -1,68 +1,43 @@
-import React, { useEffect, useState } from 'react'
 import {
   AppstoreOutlined,
-  EditOutlined,
+  FrownOutlined,
   HistoryOutlined,
 } from '@ant-design/icons'
-import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  message,
-  Modal,
-  Table,
-  Select,
-} from 'antd'
+import { Button, Col, message, Modal, Row, Select, Switch, Table } from 'antd'
+import React, { useEffect, useState } from 'react'
 import InventoryFilter from '../components/InventoryFilter'
+import InventoryHistory from '../components/InventoryHistory'
+import { formatDate } from '../helpers/helpers'
 import {
   fetchInventories,
-  addInventory,
   updateStatusInventory,
 } from '../services/inventoryApi'
-import { formatDate } from '../helpers/helpers'
-import dayjs from 'dayjs'
+import InventoryCard from '../components/InventoryCard'
 
 const { Option } = Select
 
 const InventoryManagement = () => {
   const [inventories, setInventories] = useState([])
-  const [isModalVisible, setIsModalVisible] = useState(false)
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [editingInventory, setEditingInventory] = useState(null)
-  const [inventoryHistory, setInventoryHistory] = useState([])
-  const [form] = Form.useForm()
-  const [transactionType, setTransactionType] = useState('import') // State để lưu loại giao dịch
-  const [selectedSource, setSelectedSource] = useState('') // Giá trị của Select
-  const [newImportSource, setNewImportSource] = useState('') // Giá trị của Input
-  const [importSources, setImportSources] = useState([
-    'shopee',
-    'tiktok',
-    'facebook',
-    'instagram',
-  ]) // Danh sách nguồn
-
-  const handleAddImportSource = () => {
-    // Kiểm tra giá trị mới và thêm vào danh sách nếu chưa tồn tại
-    if (newImportSource && !importSources.includes(newImportSource)) {
-      setImportSources((prevSources) => [...prevSources, newImportSource]) // Thêm nguồn mới
-      message.success(`Nguồn nhập "${newImportSource}" đã được thêm.`)
-      setSelectedSource(newImportSource) // Cập nhật giá trị Select
-    } else if (!newImportSource.trim()) {
-      message.warning('Vui lòng nhập nguồn hợp lệ.') // Xử lý trường hợp nhập rỗng
-    } else {
-      setSelectedSource(newImportSource) // Cập nhật giá trị Select
-      message.info('Nguồn này đã tồn tại.') // Tránh thêm trùng lặp
-    }
-    setNewImportSource('') // Reset Input
-  }
+  const [selectedInventory, setSelectedInventory] = useState(null)
+  const [isCardView, setIsCardView] = useState(true) // Kiểm tra chế độ hiển thị: Table or Card
+  const [itemType, setItemType] = useState('product')
+  const [filters, setFilters] = useState({
+    inventory_id: '',
+    product_id: '',
+    product_name: '',
+    size: '',
+    color: '',
+    status: '', // Thêm trạng thái vào filters
+    date_update: [],
+  })
 
   const loadInventories = async () => {
     setLoading(true)
 
     try {
-      const response = await fetchInventories()
+      const response = await fetchInventories(filters, itemType)
       setInventories(response.data)
     } catch (error) {
       message.error('Lỗi khi tải kho hàng')
@@ -70,61 +45,18 @@ const InventoryManagement = () => {
     setLoading(false)
   }
 
-  const loadInventoryHistory = async (inventoryId) => {
-    try {
-      // const response = await fetchInventoryHistory(inventoryId)
-      // setInventoryHistory(response.data)
-    } catch (error) {
-      message.error('Lỗi khi tải lịch sử kho hàng')
-    }
-  }
-
   useEffect(() => {
     loadInventories()
   }, [])
 
-  useEffect(() => {
-    if (editingInventory) {
-      form.setFieldsValue({
-        name: editingInventory.name,
-        phone: editingInventory.phone,
-        dob: editingInventory.dob ? dayjs(editingInventory.dob) : null,
-      })
-    }
-  }, [editingInventory])
-
-  const handleEditInventory = (inventory) => {
-    setEditingInventory(inventory)
-    setIsModalVisible(true)
-  }
-
   const handleHistoryClick = (inventory) => {
-    loadInventoryHistory(inventory.id)
+    setSelectedInventory(inventory)
     setIsHistoryModalVisible(true)
-  }
-
-  const handleCancel = () => {
-    setIsModalVisible(false)
-    setEditingInventory(null)
   }
 
   const handleHistoryModalCancel = () => {
     setIsHistoryModalVisible(false)
-  }
-
-  const handleFormSubmit = async (values) => {
-    try {
-      const formattedValues = {
-        ...values,
-        dob: values.dob ? values.dob.format('YYYY-MM-DD') : null,
-      }
-      // const data = await updateInventory(editingInventory.id, formattedValues)
-      // message.success(data.message)
-      loadInventories()
-      handleCancel()
-    } catch (error) {
-      message.error(error.response?.data?.message)
-    }
+    setSelectedInventory(null)
   }
 
   const handleStatusChange = async (inventoryId, newStatus) => {
@@ -213,194 +145,101 @@ const InventoryManagement = () => {
     },
   ]
 
+  const renderInventoryCards = () => {
+    return (
+      <Row gutter={[16, 16]}>
+        {inventories.map((inventory) => (
+          <Col
+            key={inventory.id}
+            xs={24}
+            sm={12}
+            md={8}
+            lg={6}
+            xl={4} // Responsive cột theo kích thước màn hình
+          >
+            <InventoryCard
+              itemType={itemType}
+              inventory={inventory}
+              handleShowDetail={() => handleHistoryClick(inventory)}
+              handleStatusChange={(value) =>
+                handleStatusChange(inventory.id, value)
+              }
+            />
+          </Col>
+        ))}
+        {inventories.length === 0 && (
+          <div className="flex justify-center items-center flex-col p-6 mx-auto">
+            <FrownOutlined className="text-4xl text-gray-600 animate-bounce mb-4" />
+            <h3 className="text-center text-lg text-gray-700 font-semibold">
+              Không có {getTypeName()} nào được tìm thấy
+            </h3>
+          </div>
+        )}
+      </Row>
+    )
+  }
+
+  const getTypeName = () => (itemType === 'product' ? 'Sản phẩm' : 'Phụ kiện')
+
   return (
     <div className="p-8 bg-white rounded-md">
-      <div className="flex flex-col md:flex-row mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
         <div className="flex items-center gap-2 mb-4 md:mb-0">
           <AppstoreOutlined className="text-3xl" />
-          <h2 className="text-2xl font-semibold">Quản lý kho hàng</h2>
+          <h2 className="text-2xl font-semibold">
+            Quản lý kho {getTypeName()}
+          </h2>
+          <div className="flex items-center mt-4 sm:mt-0">
+            <Switch
+              checked={itemType === 'accessory'}
+              onChange={() =>
+                setItemType((item) =>
+                  item === 'accessory' ? 'product' : 'accessory'
+                )
+              }
+              className="mr-3"
+            />
+            <span className="text-sm">Xem phụ kiện</span>
+          </div>
         </div>
+        <Button type="primary">Khách thuê mới</Button>
       </div>
 
       <InventoryFilter
-        setLoading={setLoading}
-        setInventories={setInventories}
+        setIsCardView={setIsCardView}
+        isCardView={isCardView}
+        itemType={itemType}
+        setFilters={setFilters}
+        filters={filters}
+        loadInventories={loadInventories}
       />
 
-      <Table
-        dataSource={inventories}
-        columns={columns}
-        rowKey="id"
-        loading={loading}
-        scroll={{ x: 'max-content' }}
-      />
-
-      <Modal
-        title="Sửa thông tin kho hàng"
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={null}
-        width={1200}
-      >
-        <Form form={form} onFinish={handleFormSubmit} layout="vertical">
-          <Form.Item
-            label="Tên kho hàng"
-            name="name"
-            rules={[{ required: true, message: 'Vui lòng nhập tên kho hàng' }]}
-          >
-            <Input placeholder="Nhập tên kho hàng" />
-          </Form.Item>
-          <Form.Item
-            label="Số điện thoại"
-            name="phone"
-            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
-          >
-            <Input placeholder="Nhập số điện thoại" />
-          </Form.Item>
-
-          <Form.Item
-            label="Sinh nhật"
-            name="dob"
-            rules={[{ required: true, message: 'Vui lòng nhập sinh nhật' }]}
-          >
-            <DatePicker format="DD/MM/YYYY" />
-          </Form.Item>
-
-          <Button type="primary" htmlType="submit" style={{ marginTop: 16 }}>
-            Cập nhật
-          </Button>
-        </Form>
-      </Modal>
-
-      <Modal
-        title="Lịch sử cập nhật kho hàng"
-        visible={isHistoryModalVisible}
-        onCancel={handleHistoryModalCancel}
-        footer={null}
-        width={1200}
-      >
+      {isCardView ? (
+        renderInventoryCards()
+      ) : (
         <Table
-          dataSource={inventoryHistory}
-          columns={[
-            { title: 'Ngày', dataIndex: 'date', key: 'date' },
-            { title: 'Hành động', dataIndex: 'action', key: 'action' },
-            { title: 'Người thực hiện', dataIndex: 'user', key: 'user' },
-          ]}
+          dataSource={inventories}
+          columns={columns}
           rowKey="id"
+          loading={loading}
+          scroll={{ x: 'max-content' }}
         />
-        <Form layout="vertical" style={{ marginTop: 16 }}>
-          <Form.Item
-            label="Loại giao dịch"
-            name="transactionType"
-            rules={[
-              { required: true, message: 'Vui lòng chọn loại giao dịch' },
-            ]}
-          >
-            <Select
-              onChange={(value) => setTransactionType(value)}
-              placeholder="Chọn loại giao dịch"
-            >
-              <Option value="import">Nhập kho</Option>
-              <Option value="export">Xuất kho</Option>
-            </Select>
-          </Form.Item>
+      )}
 
-          {transactionType === 'import' && (
-            <>
-              <Form.Item
-                label="Nguồn nhập"
-                rules={[
-                  { required: true, message: 'Vui lòng chọn nguồn nhập' },
-                ]}
-              >
-                <Select
-                  placeholder="Chọn nguồn nhập hoặc nhập mới"
-                  value={selectedSource} // Giá trị hiện tại của Select
-                  onChange={(value) => setSelectedSource(value)} // Cập nhật giá trị khi chọn từ Option
-                  dropdownRender={(menu) => (
-                    <>
-                      {menu}
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexWrap: 'nowrap',
-                          padding: 8,
-                        }}
-                      >
-                        <Input
-                          style={{ flex: 'auto' }}
-                          value={newImportSource} // Giá trị của Input thêm mới
-                          onChange={(e) => setNewImportSource(e.target.value)} // Cập nhật giá trị Input
-                          placeholder="Nhập nguồn mới"
-                        />
-                        <Button type="link" onClick={handleAddImportSource}>
-                          Thêm
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                >
-                  {importSources.map((source) => (
-                    <Option key={source} value={source}>
-                      {source}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item
-                label="Số lượng nhập"
-                name="importQuantity"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập số lượng nhập' },
-                ]}
-              >
-                <Input placeholder="Nhập số lượng nhập" />
-              </Form.Item>
-              <Form.Item
-                label="Số tiền"
-                name="importAmount"
-                rules={[{ required: true, message: 'Vui lòng nhập số tiền' }]}
-              >
-                <Input placeholder="Nhập số tiền" />
-              </Form.Item>
-            </>
-          )}
-
-          {transactionType === 'export' && (
-            <>
-              <Form.Item
-                label="Ghi chú xuất kho"
-                name="exportNote"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập ghi chú xuất kho' },
-                ]}
-              >
-                <Input.TextArea placeholder="Nhập ghi chú xuất kho" />
-              </Form.Item>
-              <Form.Item
-                label="Số lượng xuất"
-                name="exportQuantity"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập số lượng xuất' },
-                ]}
-              >
-                <Input placeholder="Nhập số lượng xuất" />
-              </Form.Item>
-              <Form.Item
-                label="Số tiền"
-                name="exportAmount"
-                rules={[{ required: true, message: 'Vui lòng nhập số tiền' }]}
-              >
-                <Input placeholder="Nhập số tiền" />
-              </Form.Item>
-            </>
-          )}
-
-          <Button type="primary" style={{ marginTop: 16 }}>
-            Cập nhật kho
-          </Button>
-        </Form>
-      </Modal>
+      {selectedInventory && (
+        <Modal
+          title="Lịch sử cập nhật kho hàng"
+          visible={isHistoryModalVisible}
+          onCancel={handleHistoryModalCancel}
+          footer={null}
+          width={1200}
+        >
+          <InventoryHistory
+            inventory={selectedInventory}
+            loadInventories={loadInventories}
+          />
+        </Modal>
+      )}
     </div>
   )
 }

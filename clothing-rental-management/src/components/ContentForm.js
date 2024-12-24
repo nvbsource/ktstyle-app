@@ -186,7 +186,7 @@ const AddContentModal = ({ visible, onCancel, onCreate, initialData }) => {
     formData.append('file', file.originFileObj || file);
 
     try {
-      const response = await fetch('http://localhost:5005/api/upload', {
+      const response = await fetch('http://localhost:5005/api/admin/upload', {
         method: 'POST',
         body: formData,
       });

@@ -33,9 +33,14 @@ const Navbar = () => {
         <Menu.Item key="/dashboard" icon={<DashboardOutlined />}>
           <Link to="/dashboard">Dashboard</Link>
         </Menu.Item>
-        <Menu.Item key="/orders/manager" icon={<ShoppingOutlined />}>
-          <Link to="/orders/manager">Hóa đơn</Link>
-        </Menu.Item>
+        <SubMenu key="orders" title="Hóa đơn" icon={<ShoppingOutlined />}>
+          <Menu.Item key="/orders/work">
+            <Link to="/orders/work">Tạo hoá đơn</Link>
+          </Menu.Item>
+          <Menu.Item key="/orders/manager">
+            <Link to="/orders/manager">Lịch sử hoá đơn</Link>
+          </Menu.Item>
+        </SubMenu>
         <Menu.Item key="/transactions/manager" icon={<BankFilled />}>
           <Link to="/transactions/manager">Tra soát ngân hàng</Link>
         </Menu.Item>

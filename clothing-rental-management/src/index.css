@@ -3,6 +3,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Thay đổi font mặc định cho Ant Design */
+.ant-typography,
+.ant-btn,
+.ant-input,
+.ant-menu,
+.ant-select,
+.ant-table {
+  font-family: 'Poppins', sans-serif !important;
+}
+
 /* Reset tất cả các phần tử */
 *,
 *::before,
@@ -19,7 +31,7 @@
 html, body {
   height: 100%;
   width: 100%;
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif; /* Font chính */
   font-size: 16px;
   line-height: 1.5;
   background-color: #fff;

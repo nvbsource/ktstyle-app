@@ -1,6 +1,6 @@
-.tox .tox-edit-area::before{
-  outline: none !important; 
-  border: none !important; 
+.tox .tox-edit-area::before {
+  outline: none !important;
+  border: none !important;
 }
 /* 
 input:focus,
@@ -12,12 +12,13 @@ button:focus {
 } */
 
 textarea {
-  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif !important
+  font-family: 'Segoe UI Historic', 'Segoe UI', Helvetica, Arial, sans-serif !important;
 }
 
-textarea::placeholder{
-  font-family: -apple-system, "system-ui", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  font-size: 20px;
+textarea::placeholder {
+  font-family: -apple-system, 'system-ui', 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 .camera-container {
@@ -52,20 +53,72 @@ canvas {
   height: 100%;
 }
 
+.ant-modal-title {
+  font-size: 24px !important;
+}
+
+/* Tăng chiều cao và padding cho Input */
+.ant-input,
+.ant-input-textarea,
+.ant-select-selector,
+.ant-picker {
+  padding: 12px !important; /* Tăng padding */
+  border-radius: 0.375rem !important; /* Bo góc */
+  font-size: 1rem; /* Tăng kích thước chữ */
+}
+
+:where(.css-dev-only-do-not-override-tpassh).ant-form-item {
+  margin-bottom: 0px;
+}
+/* Đảm bảo Select và Input đồng bộ chiều cao */
+.ant-select-selector,
+.ant-picker {
+  height: 100% !important; /* Giãn chiều cao tự động */
+  display: flex; /* Căn chỉnh nội dung */
+  align-items: center; /* Nội dung căn giữa theo chiều dọc */
+}
+
+/* Điều chỉnh padding cho TextArea */
+.ant-input-textarea {
+  padding: 12px !important; /* Tăng padding */
+  font-size: 1rem; /* Tăng kích thước chữ */
+}
+
+/* Tăng kích thước cho Nút */
+.ant-btn {
+  padding: 10px 16px !important; /* Tăng padding nút */
+  font-size: 1rem !important; /* Tăng font chữ */
+  border-radius: 0.375rem !important; /* Bo góc */
+}
+
+:where(.css-dev-only-do-not-override-tpassh).ant-select-single {
+  height: auto !important;
+}
+
+:where(.css-dev-only-do-not-override-u442pz).ant-select-single {
+  height: auto;
+}
+:where(.css-dev-only-do-not-override-o94ov).ant-select-single {
+  height: auto;
+}
+
+.custom-card .ant-card-body {
+  padding: 10px !important; /* Xóa padding */
+}
 
 @media (min-width: 768px) {
   .camera-container {
-      max-width: 640px;
+    max-width: 640px;
   }
 }
 
 @media (max-width: 767px) {
   .camera-container {
-      width: 90%;
-      aspect-ratio: 1 / 1; /* Tỷ lệ vuông cho mobile */
+    width: 90%;
+    aspect-ratio: 1 / 1; /* Tỷ lệ vuông cho mobile */
   }
 
   .camera-container .absolute {
-      font-size: 0.8rem; /* Font nhỏ hơn trên mobile */
+    font-size: 0.8rem; /* Font nhỏ hơn trên mobile */
   }
 }

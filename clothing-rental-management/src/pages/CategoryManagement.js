@@ -170,7 +170,6 @@ const CategoryManagement = () => {
         </h2>
         <Button
           type="primary"
-          className="bg-green-500 text-white hover:bg-green-600"
           onClick={handleAddCategory}
         >
           Thêm danh mục

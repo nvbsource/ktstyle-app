@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Fonts Link -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: 'Poppins', sans-serif; /* Apply Poppins to the body */
+      }
+      .price-container {
+        display: inline-block;
+        position: relative;
+        border-radius: 12px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        color: black;
+        padding: 10px;
+        text-align: center;
+      }
+      .price-container img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 12px;
+      }
+      .price-container span {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 100px;
+        color: rgb(107, 84, 74);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="price-container">
+      <img src="/Users/nguyenvanbao/Documents/KT-Style/Souce Code/Quan-ly-quan-ao/backend/s.webp" alt="Product Image" />
+      <span>30.000đ</span>
+    </div>
+  </body>
+</html>
