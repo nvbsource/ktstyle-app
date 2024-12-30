@@ -11,7 +11,7 @@ exports.getProducts = async (req, res) => {
     req.query // Lấy các bộ lọc từ query params
 
   let queryStr = `
-        SELECT p.id, p.name, p.description, p.notes, p.images, p.slug, p.import_price, p.rental_price,
+        SELECT p.id, p.name, p.description, p.notes, p.images, p.thumbnail, p.slug, p.import_price, p.rental_price,
                GROUP_CONCAT(DISTINCT l.id) AS library_ids, 
                GROUP_CONCAT(DISTINCT l.name) AS library_names, 
                c.id as category_id, 
@@ -93,6 +93,7 @@ exports.getProducts = async (req, res) => {
       id: row.id,
       name: row.name,
       slug: row.slug,
+      thumbnail: row.thumbnail,
       description: row.description,
       notes: row.notes,
       images: row.images,

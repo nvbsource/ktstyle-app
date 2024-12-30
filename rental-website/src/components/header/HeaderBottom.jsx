@@ -1,7 +1,7 @@
 import { ChevronDownIcon, StarIcon } from "@heroicons/react/24/outline";
 import React from "react";
 
-export default function HeaderBottom() {
+export default function HeaderBottom({ categories }) {
   return (
     <ul id="nav" className="nav">
       <li className="nav-item ">
@@ -38,153 +38,23 @@ export default function HeaderBottom() {
             <div className="col-span-6 overflow-auto max-h-full relative">
               <div className="grid grid-cols-3 gap-6 absolute w-full mt-3">
                 {/* Block 1 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    ÁO NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Thun Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Sơ Mi Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Kiểu Nữ
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 2 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    ÁO KHOÁC NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Khoác Kiểu Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Khoác Blazer Nữ
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 3 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    QUẦN NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Quần Dài Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Quần Jeans Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Quần Ngắn Nữ
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 4 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    VÁY
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Váy Ngắn
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Váy Dài
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Váy Quần
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 5 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    ĐẦM
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Đầm Dài
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Đầm Ngắn
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 6 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    SET ĐỒ NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Set Áo và Váy Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Set Áo và Quần Nữ
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 7 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    PHỤ KIỆN
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">Túi</li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">Nón</li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Nội Y
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Khăn
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Cài Áo
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 8 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    JUMPSUIT
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Jumpsuit Ngắn
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Jumpsuit Dài
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 9 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    ĐỒ BỘ NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Đồ Bộ Nữ Dài
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Đồ Bộ Nữ Ngắn
-                    </li>
-                  </ul>
-                </div>
+                {categories.products?.map((category) => (
+                  <div className="space-y-3" key={category.id}>
+                    <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
+                      {category.name}
+                    </h3>
+                    <ul className="mt-0">
+                      {category.children?.map((child) => (
+                        <li
+                          key={child.id}
+                          className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out"
+                        >
+                          {child.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -235,154 +105,23 @@ export default function HeaderBottom() {
             {/* Danh mục chính giữa */}
             <div className="col-span-6 overflow-auto max-h-full relative">
               <div className="grid grid-cols-3 gap-6 absolute w-full mt-3">
-                {/* Block 1 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    ÁO NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Thun Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Sơ Mi Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Kiểu Nữ
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 2 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    ÁO KHOÁC NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Khoác Kiểu Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Áo Khoác Blazer Nữ
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 3 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    QUẦN NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Quần Dài Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Quần Jeans Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Quần Ngắn Nữ
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 4 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    VÁY
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Váy Ngắn
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Váy Dài
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Váy Quần
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 5 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    ĐẦM
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Đầm Dài
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Đầm Ngắn
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 6 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    SET ĐỒ NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Set Áo và Váy Nữ
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Set Áo và Quần Nữ
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 7 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    PHỤ KIỆN
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">Túi</li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">Nón</li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Nội Y
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Khăn
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Cài Áo
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 8 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    JUMPSUIT
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Jumpsuit Ngắn
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Jumpsuit Dài
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Block 9 */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
-                    ĐỒ BỘ NỮ
-                  </h3>
-                  <ul className="mt-0">
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Đồ Bộ Nữ Dài
-                    </li>
-                    <li className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out">
-                      Đồ Bộ Nữ Ngắn
-                    </li>
-                  </ul>
-                </div>
+                {categories.accessories?.map((category) => (
+                  <div className="space-y-3" key={category.id}>
+                    <h3 className="font-bold text-sm border-b border-gray-300 pb-2 cursor-pointer">
+                      {category.name}
+                    </h3>
+                    <ul className="mt-0">
+                      {category.children?.map((child) => (
+                        <li
+                          key={child.id}
+                          className="list-disc list-inside text-gray-700 text-[13px] leading-none py-2 cursor-pointer hover:text-gray-950 hover:underline transition duration-200 ease-in-out"
+                        >
+                          {child.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -405,7 +144,11 @@ export default function HeaderBottom() {
           </div>
         </div>
       </li>
-      <li class="nav-item "><a class="nav-link" href="/" title="Trang Chủ">Feedback khách hàng <StarIcon className="w-5 h-5"/></a></li>
+      <li class="nav-item ">
+        <a class="nav-link" href="/" title="Trang Chủ">
+          Feedback khách hàng <StarIcon className="w-5 h-5" />
+        </a>
+      </li>
       <li className="nav-item has-childs">
         <a href="/rubies-rubies" className="nav-link" title="Trợ Giúp">
           Trợ Giúp

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { formatNumberToCurrency } from "../helpers";
 import { EyeIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
+import discountIcon from "../assets/images/icon-discount.svg"; // Nhập ảnh từ thư mục assets
 
 const Card = styled.div`
   position: relative;
@@ -19,7 +20,7 @@ const Card = styled.div`
 
   .product-image {
     width: 100%;
-    height: 300px;
+    height: 270px;
     object-fit: cover;
     transition: transform 0.3s ease;
   }
@@ -31,8 +32,6 @@ const Card = styled.div`
 
 const ProductInfo = styled.div`
   padding: 16px;
-  text-align: center;
-
   h5 {
     font-size: 16px;
     font-weight: 600;
@@ -45,10 +44,34 @@ const ProductInfo = styled.div`
     }
   }
 
-  p {
-    font-size: 14px;
-    color: #666;
+  .price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff5b6a;
     margin-bottom: 8px;
+  }
+  .btn-addtocart {
+    width: 45px;
+    height: 45px;
+    button {
+      width: 100%;
+      margin: 0;
+      padding: 5px;
+      font-size: 24px;
+      line-height: 1.3;
+      max-height: 45px;
+      background-color: #ff5b6a;
+    }
+  }
+  .discount-f {
+    margin-bottom: 0;
+    background: url(${discountIcon}) no-repeat; /* Sử dụng biến đã import */
+    padding-left: 24px;
+    min-height: 20px;
+    .price-old {
+      color: #6b6c6c;
+      text-decoration: line-through;
+    }
   }
 `;
 
@@ -106,7 +129,7 @@ const Overlay = styled.div`
 `;
 
 const BgCode = styled.span`
-  border: 3px solid #040303;
+  border: 3px solid #ff5c6a;
   border-radius: 50%;
   height: 42px;
   width: 42px;
@@ -138,7 +161,7 @@ const NumberCode = styled.span`
   width: 36px;
   height: 36px;
   line-height: 36px;
-  background-color: #040303;
+  background-color: #ff5c6a;
   border-radius: 50%;
   display: inline-block;
 `;
@@ -156,22 +179,31 @@ export default function ProductCard({ quickView, product, addToCart }) {
   return (
     <>
       {/* Thẻ sản phẩm */}
-      <Card onClick={handlePopupOpen}>
+      <Card onClick={(e) => quickView(e, product)}>
         <div className="absolute top-3 left-3 flex items-center justify-center text-center">
           <BgCode />
           <NumberCode>#{product?.id}</NumberCode>
         </div>
-        <img
-          src={
-            product?.images[0] ||
-            "https://bizweb.dktcdn.net/100/462/587/products/20-a4ce665a-c3d0-4df7-9d0b-e6fef99cb4ac.png?v=1723042022267"
-          }
-          alt="Product"
-          className="product-image"
-        />
+        <img src={product?.thumbnail} alt="Product" className="product-image" />
         <ProductInfo>
           <h5 className="line-clamp-1">{product?.name}</h5>
-          <p>{formatNumberToCurrency(product?.rental_price)} vnđ</p>
+          <div class="flex justify-between">
+            <div class="info">
+              <p class="price">89.000 ₫</p>
+              <p class="discount-f">
+                <span class="price-old">141.000 ₫</span>
+              </p>
+            </div>
+            <div class="btn-addtocart">
+              <button
+                type="button"
+                class="rounded-lg text-white"
+                title="Thêm vào giỏ hàng"
+              >
+                +
+              </button>
+            </div>
+          </div>
         </ProductInfo>
       </Card>
 

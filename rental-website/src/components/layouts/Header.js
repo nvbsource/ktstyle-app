@@ -5,14 +5,24 @@ import HeaderLogo from "../header/HeaderLogo";
 import HeaderRight from "../header/HeaderRight";
 import MobileMenu from "../header/MobileMenu";
 import SearchMobile from "../header/SearchMobile";
+import { fetchCategories } from "../../api/categoriesApi";
 
 export default function Header() {
+  const [categories, setCategories] = useState([]);
   const [isShowMenu, setShowMenu] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   const handleShowMenu = () => setShowMenu(!isShowMenu);
 
   useEffect(() => {
+    try {
+      const fetchData = async () => {
+        const response = await fetchCategories();
+        setCategories(response);
+      };
+      fetchData();
+    } catch (error) {}
+
     const handleScroll = () => {
       if (window.scrollY > 30) {
         // Nếu cuộn xuống hơn 100px, thêm trạng thái "scrolled"
@@ -85,7 +95,7 @@ export default function Header() {
                 <div className="title_menu" onClick={handleShowMenu}>
                   <span className="title_">Danh mục sản phẩm</span>
                 </div>
-                <HeaderBottom />
+                <HeaderBottom categories={categories} />
               </div>
 
               {/* Cột Phần Phải */}

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 1080px;
+        height: 1920px;
+        font-family: 'Poppins', sans-serif;
+      }
+
+      .card {
+        width: 950px;
+        height: 1700px;
+        background: #fff;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+      .image-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        height: 100%;
+      }
+
+      .card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .content {
+        padding: 20px;
+        text-align: center;
+        position: absolute;
+        background-color: #fff;
+        top: 50%;
+        transform: translateY(-50%);
+        box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
+        border-radius: 10px;
+        max-width: 80%;
+      }
+      .content > p {
+        font-size: 30px;
+        overflow: hidden; /* Ẩn nội dung vượt quá */
+        margin: 0;
+        text-overflow: ellipsis; /* Hiển thị "..." */
+
+        /* Giới hạn số dòng (2 dòng) */
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Số dòng tối đa */
+        -webkit-box-orient: vertical;
+
+        /* Đảm bảo nội dung không vượt khung */
+        word-wrap: break-word; /* Ngắt từ nếu cần */
+        box-sizing: border-box; /* Tính cả padding vào kích thước */
+      }
+      .code{
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 30px;
+        font-weight: 600;
+        background-color: #ffffff;
+        padding: 5px 10px;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <span class="code">#[id]</span>
+      <div class="image-container">
+        <img
+          src="[image_1]"
+          alt="Product Image"
+          onerror="this.onerror=null; this.src='https://bizweb.dktcdn.net/thumb/large/100/462/587/products/3-cad092e2-1e54-4c75-9fdf-7c809c7db827.png?v=1729677257637';"
+        />
+        <img
+          src="[image_2]"
+          alt="Product Image"
+          onerror="this.onerror=null; this.src='https://bizweb.dktcdn.net/thumb/large/100/462/587/products/3-cad092e2-1e54-4c75-9fdf-7c809c7db827.png?v=1729677257637';"
+        />
+        <img
+          src="[image_3]"
+          alt="Product Image"
+          onerror="this.onerror=null; this.src='https://bizweb.dktcdn.net/thumb/large/100/462/587/products/3-cad092e2-1e54-4c75-9fdf-7c809c7db827.png?v=1729677257637';"
+        />
+        <img
+          src="[image_4]"
+          alt="Product Image"
+          onerror="this.onerror=null; this.src='https://bizweb.dktcdn.net/thumb/large/100/462/587/products/3-cad092e2-1e54-4c75-9fdf-7c809c7db827.png?v=1729677257637';"
+        />
+      </div>
+      <div class="content">
+        <p>
+          [content]
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

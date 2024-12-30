@@ -1,23 +1,22 @@
+import { FileOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons'
 import {
+  Button,
   Form,
   Input,
-  Button,
-  Upload,
   message,
   Modal,
   Select,
+  Table,
+  Tabs,
   Tag,
   TreeSelect,
-  Tabs,
-  Table,
-  Popconfirm,
+  Upload
 } from 'antd'
-import { FileOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons'
-import { useState, useEffect } from 'react'
-import { fetchCategories } from '../services/categoryApi'
-import { fetchLibraries } from '../services/libraryApi'
-import { deleteVariant, fetchVariants } from '../services/api'
+import { useEffect, useState } from 'react'
 import { textToSlug } from '../helpers/helpers'
+import { deleteVariant, fetchVariants } from '../services/api'
+import { fetchCategoriesProducts } from '../services/categoryApi'
+import { fetchLibraries } from '../services/libraryApi'
 
 const { TabPane } = Tabs
 
@@ -38,6 +37,7 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
   const [tabActive, setTabActive] = useState('1')
   const [loadingVariant, setLoadingVariant] = useState(false)
   const treeSelectData = convertTreeDataForTreeSelect(treeData)
+  const [thumbnail, setThumbnail] = useState(null) // Trạng thái lưu ảnh thumbnail
 
   const initValuesVariant = {
     quantity: 0,
@@ -46,7 +46,7 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const response = await fetchCategories()
+        const response = await fetchCategoriesProducts()
         const data = response.data
         setCategories(data)
         setTreeData(transformCategoriesToTreeData(data))
@@ -70,10 +70,13 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
   }, [])
 
   useEffect(() => {
+    console.log(initialData);
+    
     if (initialData) {
       form.setFieldsValue({
         name: initialData.name,
         description: initialData.description,
+        thumbnail: initialData.thumbnail,
         slug: initialData.slug || textToSlug(initialData.name),
         notes: initialData.notes,
         import_price: initialData.import_price,
@@ -92,6 +95,7 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
           url,
         }))
       )
+      setThumbnail(initialData.thumbnail)
       setImageUrls(initialData.images)
       setImageUrlsMap(
         initialData.images.reduce((map, url, index) => {
@@ -108,6 +112,11 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
     }
   }, [initialData, form])
 
+  useEffect(() => {
+    if (!initialData && !thumbnail && imageUrls.length > 0) {
+      setThumbnail(imageUrls[0])
+    }
+  }, [imageUrls])
   useEffect(() => {
     if (tabActive === '2') {
       loadVariants()
@@ -225,18 +234,33 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
     setPreviewVisible(true)
   }
 
-  const handleChange = ({ fileList }) => setFileList(fileList)
+  const handleChange = ({ fileList }) => {
+    setFileList(fileList)
+  }
 
   const handleRemove = (file) => {
     const urlToRemove = imageUrlsMap[file.uid]
     if (urlToRemove) {
+      // Xóa URL khỏi danh sách imageUrls
       setImageUrls((prevUrls) => prevUrls.filter((url) => url !== urlToRemove))
+
+      // Xóa ảnh khỏi map
       setImageUrlsMap((prevMap) => {
         const newMap = { ...prevMap }
         delete newMap[file.uid]
         return newMap
       })
+
+      // Nếu ảnh bị xóa là thumbnail, đặt ảnh khác làm thumbnail
+      if (thumbnail === urlToRemove) {
+        setThumbnail('')
+      }
     }
+  }
+
+  const handleSetThumbnail = (src) => {
+    setThumbnail(src)
+    form.setFieldsValue({ thumbnail: src })
   }
 
   const handleEditVariant = (index) => {
@@ -344,7 +368,6 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
               />
             </Form.Item>
           </div>
-
           {/* Giá nhập và Giá cho thuê */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Form.Item
@@ -398,7 +421,6 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
               />
             </Form.Item>
           </div>
-
           <div
             className={`grid grid-cols-1 ${itemType === 'product' ? 'md:grid-cols-2' : ''} gap-6`}
           >
@@ -434,18 +456,17 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
               </Form.Item>
             )}
           </div>
-
           {/* Hình ảnh sản phẩm */}
+          {/* Upload hình ảnh */}
           <Form.Item
             label="Hình ảnh sản phẩm"
             name="images"
             rules={[
               {
-                validator: (_, value) => {
-                  return value && value.fileList && value.fileList.length > 0
+                validator: (_, value) =>
+                  fileList.length > 0
                     ? Promise.resolve()
-                    : Promise.reject('Vui lòng tải ít nhất một ảnh')
-                },
+                    : Promise.reject('Vui lòng tải ít nhất một ảnh'),
               },
             ]}
           >
@@ -455,16 +476,78 @@ const ProductForm = ({ onSubmit, onSubmitVariant, initialData, itemType }) => {
               fileList={fileList}
               onChange={handleChange}
               onRemove={handleRemove}
-              multiple
               onPreview={handlePreview}
+              multiple
             >
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Tải ảnh lên</div>
-              </div>
+              {fileList.length >= 8 ? null : (
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Tải ảnh lên</div>
+                </div>
+              )}
             </Upload>
           </Form.Item>
 
+          {/* Chọn ảnh làm thumbnail */}
+          <Form.Item
+            label="Chọn ảnh thumbnail"
+            name="thumbnail"
+            rules={[
+              {
+                validator: (_, value) =>
+                  thumbnail
+                    ? Promise.resolve()
+                    : Promise.reject('Vui lòng chọn một ảnh làm thumbnail'),
+              },
+            ]}
+          >
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              {imageUrls.map((src, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleSetThumbnail(src)}
+                  style={{
+                    border:
+                      src === thumbnail
+                        ? '2px solid #1890ff'
+                        : '1px solid #d9d9d9',
+                    padding: '4px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    position: 'relative',
+                  }}
+                >
+                  <img
+                    src={src}
+                    alt="Thumbnail"
+                    style={{
+                      width: '80px',
+                      height: '80px',
+                      objectFit: 'cover',
+                      borderRadius: '4px',
+                    }}
+                  />
+                  {src === thumbnail && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '-5px',
+                        right: '-5px',
+                        background: '#1890ff',
+                        color: '#fff',
+                        fontSize: '10px',
+                        padding: '2px 4px',
+                        borderRadius: '50%',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      ✓
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Form.Item>
           {/* Nút hành động */}
           <div className="flex justify-end">
             <Button type="primary" htmlType="submit" className="rounded-md">

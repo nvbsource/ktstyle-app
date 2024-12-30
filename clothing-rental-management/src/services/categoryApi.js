@@ -1,9 +1,18 @@
 import { api } from "./api";
 
 // Lấy tất cả danh mục
-export const fetchCategories = async () => {
+export const fetchCategoriesProducts = async () => {
     try {
-        const response = await api.get('/categories');
+        const response = await api.get('/categories/product');
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách danh mục:", error);
+        throw error;
+    }
+};
+export const fetchCategoriesAccessories = async () => {
+    try {
+        const response = await api.get('/categories/accessory');
         return response.data;
     } catch (error) {
         console.error("Lỗi khi lấy danh sách danh mục:", error);
@@ -14,7 +23,9 @@ export const fetchCategories = async () => {
 // Thêm danh mục mới
 export const addCategory = async (category) => {
     try {
-        const response = await api.post('/categories', category);
+        const response = await api.post('/categories', {
+            ...category,
+        });
         return response.data;
     } catch (error) {
         console.error("Lỗi khi thêm danh mục:", error);

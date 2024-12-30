@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 1080px;
+        height: 1920px;
+        font-family: 'Poppins', sans-serif;
+      }
+
+      .card {
+        width: 950px;
+        height: 1700px;
+        background: #fff;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card img {
+        width: 100%;
+        height: 1450px;
+        object-fit: cover;
+      }
+
+      .content {
+        padding: 20px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .content .name {
+        font-size: 36px;
+        font-weight: 500;
+        color: #333;
+        margin: 20px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 85%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .content .price {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .price .current-price {
+        font-size: 40px;
+        font-weight: bold;
+        color: #f05454;
+      }
+
+      .price .old-price {
+        font-size: 28px;
+        font-weight: 400;
+        color: #aaa;
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="image-container">
+        <img
+          src="[image]"
+          alt="Product Image"
+        />
+      </div>
+      <div class="content">
+        <div class="name">[name]</div>
+        <div class="price">
+          <div class="current-price">[rentai_price]</div>
+          <div class="old-price">[old_price]</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

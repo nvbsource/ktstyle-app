@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react'
-import { Tree, Button, Modal, message, Popconfirm } from 'antd'
 import {
-  FolderOpenOutlined,
-  FolderOutlined,
-  FileOutlined,
-  EditOutlined,
   DeleteOutlined,
+  EditOutlined,
+  FileOutlined,
+  FolderOutlined,
 } from '@ant-design/icons'
+import { Button, message, Modal, Popconfirm, Switch, Tree } from 'antd'
+import React, { useEffect, useState } from 'react'
 import CategoryForm from '../components/CategoryForm'
 import {
   addCategory,
   deleteCategory,
-  fetchCategories,
+  fetchCategoriesAccessories,
+  fetchCategoriesProducts,
   updateCategory,
 } from '../services/categoryApi'
 
@@ -20,14 +20,16 @@ const CategoryManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
   const [expandedKeys, setExpandedKeys] = useState(null)
-
+  const [itemType, setItemType] = useState('product')
   useEffect(() => {
     loadCategories()
-  }, [])
+  }, [itemType])
 
   const loadCategories = async () => {
     try {
-      const response = await fetchCategories()
+      const response = await (itemType === 'product'
+        ? fetchCategoriesProducts()
+        : fetchCategoriesAccessories())
       setTreeData(transformCategoriesToTreeData(response.data))
     } catch (error) {
       message.error('Lỗi khi tải danh mục')
@@ -113,6 +115,8 @@ const CategoryManagement = () => {
 
   const handleFormSubmit = async (category) => {
     try {
+      category = { ...category, item_type: itemType }
+
       if (editingCategory) {
         const data = await updateCategory(editingCategory.key, category)
         message.success(data.message)
@@ -126,6 +130,7 @@ const CategoryManagement = () => {
     }
     setIsModalVisible(false)
   }
+  const getTypeName = () => (itemType === 'product' ? 'Sản phẩm' : 'Phụ kiện')
 
   const renderTreeNodes = (data) => {
     return data.map((item) => ({
@@ -165,14 +170,25 @@ const CategoryManagement = () => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">
-          Quản lý danh mục
-        </h2>
-        <Button
-          type="primary"
-          onClick={handleAddCategory}
-        >
-          Thêm danh mục
+        <div className="flex gap-2 items-center">
+          <h2 className="text-2xl font-semibold text-gray-800">
+            Quản lý danh mục {getTypeName()}
+          </h2>
+          <div className="flex items-center mt-4 sm:mt-0">
+            <Switch
+              checked={itemType === 'accessory'}
+              onChange={() =>
+                setItemType((item) =>
+                  item === 'accessory' ? 'product' : 'accessory'
+                )
+              }
+              className="mr-3"
+            />
+            <span className="text-sm">Xem phụ kiện</span>
+          </div>
+        </div>
+        <Button type="primary" onClick={handleAddCategory}>
+          Thêm danh mục  {getTypeName()}
         </Button>
       </div>
       <Tree

@@ -1,15 +1,29 @@
 const dbRepository = require('../../config/dbRepository')
-const { successResponse, errorResponse } = require('../../helpers/responseHelper')
+const {
+  successResponse,
+  errorResponse,
+} = require('../../helpers/responseHelper')
 
 // Lấy tất cả danh mục với cha-con
-exports.getCategoriesWithParentChild = async (req, res) => {
+exports.getCategories = async (req, res) => {
+  const { type } = req.params
+  if (type !== 'accessory' && type !== 'product') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Loại danh mục không hợp lệ',
+    })
+  }
+
   try {
     const categories = await dbRepository.getAll('Categories')
 
     // Hàm đệ quy để xây dựng cây danh mục
     const buildCategoryTree = (categories, parentId = null) => {
       return categories
-        .filter((category) => category.parent_id === parentId) // Lọc các danh mục con của parentId
+        .filter(
+          (category) =>
+            category.parent_id === parentId && category.item_type === type
+        ) // Lọc các danh mục con của parentId
         .map((category) => ({
           ...category,
           children: buildCategoryTree(categories, category.id), // Đệ quy tìm các con
@@ -30,14 +44,24 @@ exports.getCategoriesWithParentChild = async (req, res) => {
     errorResponse(res, 'Lỗi khi lấy danh mục')
   }
 }
-
 // Thêm danh mục mới
 exports.addCategory = async (req, res) => {
-  const { name, parent_id } = req.body
+  const { name, parent_id, item_type } = req.body
 
   try {
+    if (item_type !== 'accessory' && item_type !== 'product') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Loại sản phẩm không hợp lệ',
+      })
+    }
+
     // Kiểm tra nếu tên danh mục đã tồn tại
-    const existingCategory = await dbRepository.where('Categories', { name })
+    const existingCategory = await dbRepository.where('Categories', {
+      name,
+      item_type,
+      parent_id: parent_id || null,
+    })
     if (existingCategory.data.length > 0) {
       return errorResponse(res, 'Danh mục với tên này đã tồn tại', 400)
     }
@@ -45,7 +69,8 @@ exports.addCategory = async (req, res) => {
     // Thêm danh mục mới
     const newCategory = await dbRepository.create('Categories', {
       name,
-      parent_id,
+      parent_id: parent_id || null,
+      item_type,
     })
     successResponse(res, 'Danh mục đã được thêm thành công', newCategory)
   } catch (err) {
@@ -57,9 +82,16 @@ exports.addCategory = async (req, res) => {
 // Cập nhật thông tin danh mục
 exports.updateCategory = async (req, res) => {
   const { id } = req.params
-  const { name, parent_id } = req.body
+  const { name, parent_id, item_type } = req.body
 
   try {
+    if (item_type !== 'accessory' && item_type !== 'product') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Loại sản phẩm không hợp lệ',
+      })
+    }
+
     const category = await dbRepository.getById('Categories', id)
 
     if (!category.status) {
@@ -68,25 +100,28 @@ exports.updateCategory = async (req, res) => {
 
     if (
       parent_id &&
-      !(await dbRepository.where('Categories', { parent_id })).status
+      !(await dbRepository.where('Categories', { parent_id, item_type })).status
     ) {
       return errorResponse(res, 'Danh mục cha không tồn tại', 404)
     }
 
     // Kiểm tra nếu tên danh mục mới đã tồn tại
-    const existingCategory = await dbRepository.where('Categories', {
-      name,
-      parent_id: parent_id || null,
-    })
+    const existingCategory = (
+      await dbRepository.where('Categories', {
+        name,
+        parent_id: parent_id || null,
+        item_type,
+      })
+    ).first()
 
-    if (existingCategory.data.length > 0) {
+    if (existingCategory && existingCategory.id !== id) {
       return errorResponse(res, 'Danh mục với tên này đã tồn tại', 400)
     }
 
     // Cập nhật danh mục
     await dbRepository.update('Categories', id, {
       name,
-      ...(parent_id ? { parent_id } : {}),
+      parent_id: parent_id || null,
     })
     successResponse(res, 'Danh mục đã được cập nhật thành công')
   } catch (err) {

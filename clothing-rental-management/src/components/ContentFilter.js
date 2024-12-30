@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Input, Slider, Select, Button, Switch, DatePicker, message } from 'antd';
+import { DatePicker, Input, message, Select, Switch } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { fetchContents } from '../services/api'; // Giả sử fetchProducts là API gọi sản phẩm
-import { formatNumberToCurrency } from '../helpers/helpers';
-import { fetchCategories } from '../services/categoryApi';
+import { fetchCategoriesProducts } from '../services/categoryApi';
 const { RangePicker } = DatePicker;
 
 
@@ -41,7 +40,7 @@ const ContentFilter = ({ setLoading, setContents, setIsCardView, isCardView }) =
     useEffect(() => {
         const loadtopics = async () => {
             try {
-                const response = await fetchCategories();
+                const response = await fetchCategoriesProducts();
                 settopics(response.data);
             } catch (error) {
                 message.error('Lỗi khi tải danh mục');

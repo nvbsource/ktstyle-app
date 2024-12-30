@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react'
 import {
-  Input,
-  Slider,
-  Select,
-  Button,
-  Switch,
   DatePicker,
+  Input,
   message,
+  Select,
+  Slider,
+  Switch
 } from 'antd'
+import React, { useEffect, useState } from 'react'
 import { flattenObjectArray, formatNumberToCurrency } from '../helpers/helpers'
-import { fetchCategories } from '../services/categoryApi'
+import { fetchCategoriesProducts } from '../services/categoryApi'
 import { fetchLibraries } from '../services/libraryApi'
 const { RangePicker } = DatePicker
 
@@ -47,9 +46,9 @@ const ProductFilter = ({
   }, [debouncedFilters, itemType]) // Khi filter thay đổi sẽ gọi lại API
 
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadCategoriesProducts = async () => {
       try {
-        const response = await fetchCategories()
+        const response = await fetchCategoriesProducts()
         setCategories(flattenObjectArray(response.data))
       } catch (error) {
         message.error('Lỗi khi tải danh mục')
@@ -63,7 +62,7 @@ const ProductFilter = ({
         message.error('Lỗi khi tải danh mục')
       }
     }
-    loadCategories()
+    loadCategoriesProducts()
     loadLibraries()
   }, [])
 
