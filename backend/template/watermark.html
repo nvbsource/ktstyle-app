@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image with Watermark</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+    }
+
+    .image-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .image-container img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .watermark {
+      position: absolute;
+      font-size: 24px;
+      font-family: "Brush Script MT", cursive, sans-serif; /* Font chữ mềm mại */
+      color: rgba(255, 255, 255, 0.8); /* Màu trắng sáng hơn */
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Tạo bóng cho chữ */
+      transform: rotate(-30deg); /* Chữ nghiêng */
+      pointer-events: none; /* Đảm bảo watermark không ảnh hưởng khi tương tác chuột */
+    }
+
+    /* Vị trí watermark */
+    .watermark.top-left {
+      top: 10px;
+      left: 10px;
+    }
+
+    .watermark.top-right {
+      top: 10px;
+      right: 10px;
+    }
+
+    .watermark.bottom-left {
+      bottom: 10px;
+      left: 10px;
+    }
+
+    .watermark.bottom-right {
+      bottom: 10px;
+      right: 10px;
+    }
+
+    .watermark.center {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-30deg); /* Căn giữa và nghiêng */
+      font-size: 32px; /* Tăng kích thước chữ ở giữa */
+      color: rgba(255, 255, 255, 0.9); /* Chữ giữa sáng hơn một chút */
+    }
+  </style>
+</head>
+<body>
+  <div class="image-container">
+    <!-- Thay "your-image.jpg" bằng đường dẫn tới ảnh của bạn -->
+    <img src="../uploads/1732785392478_sg-11134201-7rbk9-lplp748tvt9ab6.webp" alt="Image">
+    <div class="watermark top-left">KTStyle</div>
+    <div class="watermark top-right">KTStyle</div>
+    <div class="watermark bottom-left">KTStyle</div>
+    <div class="watermark bottom-right">KTStyle</div>
+    <div class="watermark center">KTStyle</div>
+  </div>
+</body>
+</html>

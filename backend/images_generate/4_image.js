@@ -133,7 +133,7 @@ const processImages = async () => {
         product.rental_price &&
         product.rental_price > 0 &&
         Array.isArray(product.images) &&
-        product.images.length >= 4
+        product.images.length >= 2
       ) {
         // Hàm trộn mảng và lấy 4 hình ảnh ngẫu nhiên
         const getRandomImages = (images, count) => {
@@ -144,9 +144,15 @@ const processImages = async () => {
           }
           return shuffled.slice(0, count)
         }
-
-        const randomImages = getRandomImages(product.images.filter(Boolean), 4)
-
+        const images = product.images
+        const randomImages = getRandomImages(
+          images.filter(Boolean),
+          images.length < 4 ? 2 : 4
+        )
+        if (images.length < 4) {
+          randomImages.push(randomImages[1])
+          randomImages.push(randomImages[0])
+        }
         // Thêm tác vụ vào danh sách
         tasks.push(
           limit(() =>
